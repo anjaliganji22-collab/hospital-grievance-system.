@@ -17,7 +17,7 @@ DATA_FILE = "complaints.csv"
 if not os.path.exists(DATA_FILE):
     df_init = pd.DataFrame(columns=[
         "Complaint ID", "Hospital", "Language", "Voice Transcript", 
-        "Category", "Status", "Timestamp"
+        "Category", "Status", "Action Taken", "Timestamp"
     ])
     df_init.to_csv(DATA_FILE, index=False)
 
@@ -33,12 +33,12 @@ page = st.sidebar.radio(
 # ---------------------------------------------------------
 if page == "Citizen / Kiosk Portal":
     st.title("🗣️ Hospital Public Grievance Portal")
-    st.write("Report hospital service-related issues easily without a smartphone.")[span_0](start_span)[span_0](end_span)
+    st.write("Report hospital service-related issues easily without a smartphone.")
 
-    tab1, tab2 = st.tabs(["Submit New Grievance", "Track Status"])[span_1](start_span)[span_1](end_span)
+    tab1, tab2 = st.tabs(["Submit New Grievance", "Track Status"])
 
     with tab1:
-        st.subheader("Register a Complaint")[span_2](start_span)[span_2](end_span)
+        st.subheader("Register a Complaint")
         
         hospital_name = st.selectbox(
             "Select Government Hospital",
@@ -48,29 +48,26 @@ if page == "Citizen / Kiosk Portal":
         language = st.selectbox(
             "Select Language",
             ["Kannada", "English", "Hindi"]
-        )[span_3](start_span)[span_3](end_span)
+        )
 
         transcript = st.text_area(
             "Grievance Description (Speak or type your issue):",
             placeholder="e.g., Doctors were unavailable at the emergency ward..."
-        )[span_4](start_span)[span_4](end_span)
+        )
 
         if st.button("Submit Grievance"):
             if transcript.strip():
-                # Auto-generate unique Complaint ID[span_5](start_span)[span_5](end_span)
                 complaint_id = f"HOSP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
                 
-                # Rule-based auto categorization[span_6](start_span)[span_6](end_span)
                 category = "General Facilities"
                 text_lower = transcript.lower()
                 if "doctor" in text_lower or "staff" in text_lower:
-                    category = "Doctors & Staff Availability[span_7](start_span)"[span_7](end_span)
+                    category = "Doctors & Staff Availability"
                 elif "medicine" in text_lower or "tablet" in text_lower:
-                    category = "Medicine Availability[span_8](start_span)"[span_8](end_span)
+                    category = "Medicine Availability"
                 elif "clean" in text_lower or "water" in text_lower or "hygiene" in text_lower:
-                    category = "Cleanliness & Sanitation[span_9](start_span)"[span_9](end_span)
+                    category = "Cleanliness & Sanitation"
 
-                # Save grievance record
                 new_data = pd.DataFrame([{
                     "Complaint ID": complaint_id,
                     "Hospital": hospital_name,
@@ -78,19 +75,20 @@ if page == "Citizen / Kiosk Portal":
                     "Voice Transcript": transcript,
                     "Category": category,
                     "Status": "Pending",
+                    "Action Taken": "Awaiting review",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 
                 new_data.to_csv(DATA_FILE, mode='a', header=False, index=False)
                 
                 st.success("Grievance Registered Successfully!")
-                st.info(f"Your Unique Complaint ID: **{complaint_id}**")[span_10](start_span)[span_10](end_span)
+                st.info(f"Your Unique Complaint ID: **{complaint_id}**")
             else:
                 st.warning("Please provide a description of the issue.")
 
     with tab2:
-        st.subheader("Track Complaint Status")[span_11](start_span)[span_11](end_span)
-        search_id = st.text_input("Enter your Unique Complaint ID:")[span_12](start_span)[span_12](end_span)
+        st.subheader("Track Complaint Status")
+        search_id = st.text_input("Enter your Unique Complaint ID:")
         
         if st.button("Search"):
             if os.path.exists(DATA_FILE):
@@ -109,23 +107,39 @@ if page == "Citizen / Kiosk Portal":
 # PORTAL 2: ADMIN & MONITORING PORTAL
 # ---------------------------------------------------------
 else:
-    st.title("📊 Hospital Service Monitoring & Grievance Dashboard")[span_13](start_span)[span_13](end_span)
+    st.title("📊 Hospital Service Monitoring & Grievance Dashboard")
     
     if os.path.exists(DATA_FILE):
         df = pd.read_csv(DATA_FILE)
     else:
-        df = pd.DataFrame(columns=["Complaint ID", "Hospital", "Language", "Voice Transcript", "Category", "Status", "Timestamp"])
+        df = pd.DataFrame(columns=["Complaint ID", "Hospital", "Language", "Voice Transcript", "Category", "Status", "Action Taken", "Timestamp"])
     
     # Overview Metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Grievances", len(df))
-    col2.metric("Pending", len(df[df["Status"] == "Pending"]))[span_14](start_span)[span_14](end_span)
+    col2.metric("Pending", len(df[df["Status"] == "Pending"]))
     col3.metric("Resolved", len(df[df["Status"] == "Resolved"]))
 
     st.markdown("---")
-    st.subheader("All Grievance Records")[span_15](start_span)[span_15](end_span)
+    st.subheader("All Grievance Records & Management")
     
     if not df.empty:
         st.dataframe(df)
+        
+        st.markdown("### Update Complaint Status")
+        selected_id = st.selectbox("Select Complaint ID to Update", df["Complaint ID"].tolist())
+        
+        current_status = df.loc[df["Complaint ID"] == selected_id, "Status"].values[0]
+        new_status = st.selectbox("Update Status", ["Pending", "In Progress", "Resolved"], index=["Pending", "In Progress", "Resolved"].index(current_status))
+        
+        action_note = st.text_input("Action Taken Note / Remarks", placeholder="e.g., Staff deployed to emergency ward.")
+        
+        if st.button("Save Changes"):
+            df.loc[df["Complaint ID"] == selected_id, "Status"] = new_status
+            df.loc[df["Complaint ID"] == selected_id, "Action Taken"] = action_note
+            df.to_csv(DATA_FILE, index=False)
+            st.success(f"Complaint {selected_id} updated successfully!")
+            st.rerun()
     else:
         st.info("No grievances recorded yet.")
+    
