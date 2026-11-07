@@ -40,51 +40,55 @@ if page == "Citizen / Kiosk Portal":
     with tab1:
         st.subheader("Register a Complaint")
         
-        hospital_name = st.selectbox(
-            "Select Government Hospital",
-            ["District Government Hospital Kalaburagi", "Taluk Hospital", "Community Health Centre"]
-        )
-        
-        language = st.selectbox(
-            "Select Language",
-            ["Kannada", "English", "Hindi"]
-        )
+        # Use a form so mobile inputs are properly captured on submit
+        with st.form("grievance_form"):
+            hospital_name = st.selectbox(
+                "Select Government Hospital",
+                ["District Government Hospital Kalaburagi", "Taluk Hospital", "Community Health Centre"]
+            )
+            
+            language = st.selectbox(
+                "Select Language",
+                ["Kannada", "English", "Hindi"]
+            )
 
-        transcript = st.text_area(
-            "Grievance Description (Speak or type your issue):",
-            placeholder="e.g., Doctors were unavailable at the emergency ward..."
-        )
+            transcript = st.text_area(
+                "Grievance Description (Speak or type your issue):",
+                placeholder="e.g., Doctors were unavailable at the emergency ward..."
+            )
 
-        if st.button("Submit Grievance"):
-            if transcript.strip():
-                complaint_id = f"HOSP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
-                
-                category = "General Facilities"
-                text_lower = transcript.lower()
-                if "doctor" in text_lower or "staff" in text_lower:
-                    category = "Doctors & Staff Availability"
-                elif "medicine" in text_lower or "tablet" in text_lower:
-                    category = "Medicine Availability"
-                elif "clean" in text_lower or "water" in text_lower or "hygiene" in text_lower:
-                    category = "Cleanliness & Sanitation"
+            submitted = st.form_submit_button("Submit Grievance")
+            
+            if submitted:
+                if transcript.strip():
+                    complaint_id = f"HOSP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
+                    
+                    category = "General Facilities"
+                    text_lower = transcript.lower()
+                    if "doctor" in text_lower or "staff" in text_lower:
+                        category = "Doctors & Staff Availability"
+                    elif "medicine" in text_lower or "tablet" in text_lower:
+                        category = "Medicine Availability"
+                    elif "clean" in text_lower or "water" in text_lower or "hygiene" in text_lower:
+                        category = "Cleanliness & Sanitation"
 
-                new_data = pd.DataFrame([{
-                    "Complaint ID": complaint_id,
-                    "Hospital": hospital_name,
-                    "Language": language,
-                    "Voice Transcript": transcript,
-                    "Category": category,
-                    "Status": "Pending",
-                    "Action Taken": "Awaiting review",
-                    "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }])
-                
-                new_data.to_csv(DATA_FILE, mode='a', header=False, index=False)
-                
-                st.success("Grievance Registered Successfully!")
-                st.info(f"Your Unique Complaint ID: **{complaint_id}**")
-            else:
-                st.warning("Please provide a description of the issue.")
+                    new_data = pd.DataFrame([{
+                        "Complaint ID": complaint_id,
+                        "Hospital": hospital_name,
+                        "Language": language,
+                        "Voice Transcript": transcript,
+                        "Category": category,
+                        "Status": "Pending",
+                        "Action Taken": "Awaiting review",
+                        "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }])
+                    
+                    new_data.to_csv(DATA_FILE, mode='a', header=False, index=False)
+                    
+                    st.success("Grievance Registered Successfully!")
+                    st.info(f"Your Unique Complaint ID: **{complaint_id}**")
+                else:
+                    st.warning("Please provide a description of the issue.")
 
     with tab2:
         st.subheader("Track Complaint Status")
@@ -114,7 +118,6 @@ else:
     else:
         df = pd.DataFrame(columns=["Complaint ID", "Hospital", "Language", "Voice Transcript", "Category", "Status", "Action Taken", "Timestamp"])
     
-    # Overview Metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Grievances", len(df))
     col2.metric("Pending", len(df[df["Status"] == "Pending"]))
@@ -142,4 +145,3 @@ else:
             st.rerun()
     else:
         st.info("No grievances recorded yet.")
-    
