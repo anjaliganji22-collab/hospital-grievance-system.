@@ -12,7 +12,8 @@ st.set_page_config(
 
 DATA_FILE = "complaints.csv"
 
-if not os.path.exists(DATA_FILE):
+# Safely initialize or load data file
+if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
     df_init = pd.DataFrame(columns=[
         "Complaint ID", "Intake Channel", "Hospital", "Department / Category", 
         "Language", "Voice Transcript / Message", "Status", "Action Taken", "Timestamp"
@@ -79,7 +80,7 @@ if portal_choice == "🗣️ Citizen Intake (IVR, SMS & Kiosk)":
                     "Action Taken": "Forwarded to Medical Superintendent",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
-                new_row.to_csv(DATA_FILE, mode='a', header=False, index=False)
+                new_row.to_csv(DATA_FILE, mode='a', header=not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE)==0, index=False)
                 st.success(f"Voice grievance successfully registered! Unique ID: **{cid}**")
 
     with tab_sms:
@@ -141,7 +142,7 @@ if portal_choice == "🗣️ Citizen Intake (IVR, SMS & Kiosk)":
         search_id = st.text_input("Enter Unique Complaint ID:")
         
         if st.button("Search Ticket"):
-            if os.path.exists(DATA_FILE):
+            if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
                 df = pd.read_csv(DATA_FILE)
                 result = df[df["Complaint ID"] == search_id.strip()]
                 if not result.empty:
@@ -160,7 +161,7 @@ elif portal_choice == "🩺 Doctor & Department Portal":
     st.title("🩺 Doctor & Departmental Staff Portal")
     st.write("Allows medical officers and department heads to view and address department-specific issues.")
     
-    if os.path.exists(DATA_FILE):
+    if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
         df = pd.read_csv(DATA_FILE)
     else:
         df = pd.DataFrame(columns=["Complaint ID", "Intake Channel", "Hospital", "Department / Category", "Language", "Voice Transcript / Message", "Status", "Action Taken", "Timestamp"])
@@ -199,7 +200,7 @@ elif portal_choice == "🩺 Doctor & Department Portal":
 
 else:
     st.title("📊 Hospital Service Monitoring & Authority Dashboard")
-    df = pd.read_csv(DATA_FILE) if os.path.exists(DATA_FILE) else pd.DataFrame(columns=["Complaint ID", "Intake Channel", "Hospital", "Department / Category", "Language", "Voice Transcript / Message", "Status", "Action Taken", "Timestamp"])
+    df = pd.read_csv(DATA_FILE) if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0 else pd.DataFrame(columns=["Complaint ID", "Intake Channel", "Hospital", "Department / Category", "Language", "Voice Transcript / Message", "Status", "Action Taken", "Timestamp"])
     
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Grievances", len(df))
@@ -213,4 +214,4 @@ else:
         st.dataframe(df)
     else:
         st.info("No grievances recorded yet.")
-    
+            
