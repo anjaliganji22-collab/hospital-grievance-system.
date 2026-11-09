@@ -82,7 +82,8 @@ def load_data():
     if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
         df_init = pd.DataFrame(columns=[
             "Complaint ID", "Intake Channel", "District", "Taluka", "Hospital", 
-            "Department / Category", "Language", "Voice / Text Transcript", "Status", "Action Taken by Staff", "Timestamp"
+            "Department / Category", "Language", "Voice / Text Transcript", 
+            "Status", "Doctor Action / Official Response", "Patient Rating", "Timestamp"
         ])
         df_init.to_csv(DATA_FILE, index=False)
     try:
@@ -90,7 +91,8 @@ def load_data():
     except Exception:
         df_init = pd.DataFrame(columns=[
             "Complaint ID", "Intake Channel", "District", "Taluka", "Hospital", 
-            "Department / Category", "Language", "Voice / Text Transcript", "Status", "Action Taken by Staff", "Timestamp"
+            "Department / Category", "Language", "Voice / Text Transcript", 
+            "Status", "Doctor Action / Official Response", "Patient Rating", "Timestamp"
         ])
         df_init.to_csv(DATA_FILE, index=False)
         return df_init
@@ -99,31 +101,29 @@ st.sidebar.title("🏥 Solvathon 2026 Navigation")
 portal_choice = st.sidebar.radio(
     "Select Portal", 
     [
-        "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)", 
+        "🗣️ Citizen Intake & Patient Tracking", 
         "🩺 Doctor & Hospital Staff Portal", 
-        "📊 Admin & Monitoring Dashboard"
+        "📊 Admin & Authority Dashboard"
     ]
 )
 
 # ---------------------------------------------------------
-# PORTAL 1: CITIZEN INTAKE
+# PORTAL 1: CITIZEN INTAKE & PATIENT TRACKING
 # ---------------------------------------------------------
-if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
-    st.title("🗣️ Accessible Public Grievance & Hospital Monitoring System")
-    st.write("Designed for citizens and rural patients via live audio calling simulation, SMS, or assisted hospital kiosks.")
+if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
+    st.title("🗣️ Accessible Public Grievance System")
+    st.write("For rural patients and citizens to lodge complaints and track doctor responses.")
 
     tab_call, tab_sms, tab_kiosk, tab_track = st.tabs([
         "📞 Live Audio Call / IVR", 
         "📱 SMS Gateway", 
         "🏥 Hospital Helpdesk Kiosk", 
-        "🔍 Track Status & Feedback"
+        "🔍 Track Status & Provide Rating"
     ])
 
     # --- TAB 1: LIVE AUDIO CALL SIMULATION ---
     with tab_call:
-        st.subheader("Interactive Voice Response (IVR) & Audio Call Portal")
-        st.write("Call our toll-free helpline or record your voice complaint directly from your phone.")
-
+        st.subheader("Interactive Voice Response (IVR) & Call Portal")
         with st.form("call_form"):
             selected_district = st.selectbox("Select District", list(HOSPITAL_DATABASE.keys()))
             available_talukas = list(HOSPITAL_DATABASE[selected_district].keys())
@@ -133,13 +133,12 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
             
             call_lang = st.selectbox("Select Language", ["Kannada (ಕನ್ನಡ)", "Hindi (हिन्दी)", "English"])
             
-            st.info("🎙️ You can speak your issue or type the translated voice transcript below:")
             voice_transcript = st.text_area(
                 "Voice Call Transcript:", 
-                placeholder="ಉದಾಹರಣೆಗೆ: ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ / Doctors unavailable in emergency ward..."
+                placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ / Doctors unavailable in emergency ward..."
             )
 
-            submitted_call = st.form_submit_button("Submit Audio / Voice Grievance")
+            submitted_call = st.form_submit_button("Submit Voice Grievance")
             
             if submitted_call and voice_transcript.strip():
                 df = load_data()
@@ -164,12 +163,13 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
                     "Language": call_lang,
                     "Voice / Text Transcript": voice_transcript,
                     "Status": "Pending",
-                    "Action Taken by Staff": "Awaiting hospital staff review",
+                    "Doctor Action / Official Response": "Awaiting doctor/staff response",
+                    "Patient Rating": "Not Rated Yet",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
-                st.success(f"Voice call grievance successfully registered! Your Unique Ticket ID: **{cid}**")
+                st.success(f"Grievance successfully registered! Unique Ticket ID: **{cid}**")
 
     # --- TAB 2: SMS GATEWAY ---
     with tab_sms:
@@ -195,7 +195,8 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
                     "Language": "Regional Code",
                     "Voice / Text Transcript": sms_body,
                     "Status": "Pending",
-                    "Action Taken by Staff": "Awaiting pharmacist review",
+                    "Doctor Action / Official Response": "Awaiting staff response",
+                    "Patient Rating": "Not Rated Yet",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
@@ -210,7 +211,7 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
             k_taluka = st.selectbox("Select Taluka", list(HOSPITAL_DATABASE[k_district].keys()), key="k_tal")
             k_hosp = st.selectbox("Select Hospital", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
             
-            kiosk_desc = st.text_area("Issue Description", placeholder="Describe cleanliness, equipment breakdown, or staff shortage...")
+            kiosk_desc = st.text_area("Issue Description", placeholder="Describe cleanliness or staff shortage...")
             submitted_kiosk = st.form_submit_button("Log Assisted Grievance")
             
             if submitted_kiosk and kiosk_desc.strip():
@@ -226,16 +227,17 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
                     "Language": "Assisted Entry",
                     "Voice / Text Transcript": kiosk_desc,
                     "Status": "Pending",
-                    "Action Taken by Staff": "Awaiting superintendent review",
+                    "Doctor Action / Official Response": "Awaiting staff response",
+                    "Patient Rating": "Not Rated Yet",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
                 st.success(f"Helpdesk grievance logged! Ticket ID: **{cid}**")
 
-    # --- TAB 4: TRACK STATUS & FEEDBACK ---
+    # --- TAB 4: TRACK STATUS & PATIENT FEEDBACK ---
     with tab_track:
-        st.subheader("Track Status & Provide Patient Feedback")
+        st.subheader("Track Status & Submit Feedback")
         search_id = st.text_input("Enter Unique Complaint ID (e.g., HOSP-CALL-...):")
         
         if st.button("Search Ticket"):
@@ -243,66 +245,90 @@ if portal_choice == "🗣️ Citizen Intake (Voice Call, SMS & Kiosk)":
             if not df.empty:
                 result = df[df["Complaint ID"] == search_id.strip()]
                 if not result.empty:
-                    st.dataframe(result)
-                    current_status = result["Status"].values[0]
-                    if current_status == "Resolved":
-                        st.success("✅ This issue has been resolved by hospital staff.")
-                        rating = st.slider("Rate Hospital Staff Resolution (1 to 5 Stars)", 1, 5, 5)
-                        if st.button("Submit Patient Feedback"):
-                            st.success("Thank you! Feedback recorded successfully.")
+                    st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Patient Rating"]])
+                    
+                    status = result["Status"].values[0]
+                    doc_response = result["Doctor Action / Official Response"].values[0]
+                    
+                    if status == "Resolved":
+                        st.success(f"✅ **Doctor/Staff Response:** {doc_response}")
+                        st.markdown("### 🌟 Rate the Hospital Staff Action")
+                        rating = st.slider("Select Rating (1 = Poor, 5 = Excellent Stars)", 1, 5, 5)
+                        
+                        if st.button("Submit Rating"):
+                            df.loc[df["Complaint ID"] == search_id.strip(), "Patient Rating"] = f"⭐ {rating} Stars"
+                            df.to_csv(DATA_FILE, index=False)
+                            st.success(f"Thank you! You rated the resolution {rating} Stars.")
+                            st.rerun()
+                    elif status == "In Progress":
+                        st.info(f"⏳ **Status:** In Progress. Response: {doc_response}")
+                        st.warning("Rating option will open once the doctor/staff marks this issue as Resolved.")
+                    else:
+                        st.warning("⏳ **Status:** Pending. Doctor/Staff have not reviewed this complaint yet.")
+                        st.warning("Rating option will open after hospital action is taken.")
                 else:
                     st.error("Complaint ID not found.")
             else:
                 st.info("No records available.")
 
 # ---------------------------------------------------------
-# PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL
+# PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL ONLY
 # ---------------------------------------------------------
 elif portal_choice == "🩺 Doctor & Hospital Staff Portal":
-    st.title("🩺 Hospital Staff & Medical Officer Portal")
-    st.write("Hospital doctors and department heads can review grievances for their hospital, take action, and update resolution notes.")
+    st.title("🩺 Doctor & Hospital Staff Action Portal")
+    st.write("Exclusively for doctors and hospital staff to inspect patient complaints and record action taken.")
     
     df = load_data()
     
     staff_district = st.selectbox("Filter by District", ["All Districts"] + list(HOSPITAL_DATABASE.keys()))
     if staff_district != "All Districts":
-        df = df[df["District"] == staff_district]
+        df_filtered = df[df["District"] == staff_district]
+    else:
+        df_filtered = df
 
-    st.subheader("Grievances Assigned to Hospitals")
-    if not df.empty:
-        st.dataframe(df)
-        active_ids = df["Complaint ID"].tolist()
+    st.subheader("Pending Patient Complaints")
+    if not df_filtered.empty:
+        st.dataframe(df_filtered[["Complaint ID", "Hospital", "Department / Category", "Voice / Text Transcript", "Status", "Doctor Action / Official Response"]])
+        
+        active_ids = df_filtered["Complaint ID"].tolist()
         if active_ids:
-            doc_selected_id = st.selectbox("Select Ticket ID to Take Action", active_ids)
+            st.markdown("---")
+            st.subheader("📝 Answer & Resolve Complaint")
+            doc_selected_id = st.selectbox("Select Ticket ID to Answer", active_ids)
             
-            # Action taken feedback input from hospital staff
-            staff_action_note = st.text_input(
-                "Hospital Staff Action Remarks / Resolution Note", 
-                placeholder="e.g., Deployed standby doctor to emergency ward / Replenished medicine stock."
+            patient_issue = df.loc[df["Complaint ID"] == doc_selected_id, "Voice / Text Transcript"].values[0]
+            st.info(f"**Patient Complaint Message:** {patient_issue}")
+            
+            doctor_answer = st.text_area(
+                "Doctor / Staff Action Remarks & Answer:", 
+                placeholder="e.g., Attending physician deployed to Emergency Ward. Doctor is now available."
             )
             
             col_d1, col_d2 = st.columns(2)
-            if col_d1.button("Mark as In Progress"):
+            if col_d1.button("Mark In Progress"):
                 df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "In Progress"
-                df.loc[df["Complaint ID"] == doc_selected_id, "Action Taken by Staff"] = staff_action_note
+                df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
                 df.to_csv(DATA_FILE, index=False)
                 st.success(f"Ticket {doc_selected_id} updated to In Progress.")
                 st.rerun()
                 
-            if col_d2.button("Mark as Resolved"):
-                df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "Resolved"
-                df.loc[df["Complaint ID"] == doc_selected_id, "Action Taken by Staff"] = staff_action_note
-                df.to_csv(DATA_FILE, index=False)
-                st.success(f"Ticket {doc_selected_id} successfully marked as Resolved!")
-                st.rerun()
+            if col_d2.button("Mark Resolved & Submit Answer"):
+                if doctor_answer.strip():
+                    df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "Resolved"
+                    df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
+                    df.to_csv(DATA_FILE, index=False)
+                    st.success(f"Ticket {doc_selected_id} answered and marked Resolved!")
+                    st.rerun()
+                else:
+                    st.error("Please write your action remarks/answer before marking resolved.")
     else:
-        st.info("No grievances found for this selection.")
+        st.info("No complaints found.")
 
 # ---------------------------------------------------------
-# PORTAL 3: ADMIN & MONITORING DASHBOARD
+# PORTAL 3: ADMIN & AUTHORITY DASHBOARD
 # ---------------------------------------------------------
 else:
-    st.title("📊 State / District Health Authority Dashboard")
+    st.title("📊 Health Authority Monitoring Dashboard")
     df = load_data()
     
     col1, col2, col3, col4 = st.columns(4)
@@ -312,9 +338,8 @@ else:
     col4.metric("Resolved", len(df[df["Status"] == "Resolved"]))
 
     st.markdown("---")
-    st.subheader("Master Grievance Registry Across All Districts")
+    st.subheader("Master Grievance & Patient Feedback Registry")
     if not df.empty:
         st.dataframe(df)
     else:
         st.info("No grievances recorded yet.")
-                                                                     
