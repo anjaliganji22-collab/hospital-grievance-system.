@@ -288,14 +288,16 @@ if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
 
     with tab_call:
         st.subheader("Interactive Voice Response (IVR) & Call Portal")
+        
+        # Dynamic cascading selectbox outside st.form so selections update instantly
+        selected_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
+        available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
+        selected_taluka = st.selectbox("Select Taluka", available_talukas, key="call_tal")
+        available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
+        selected_hospital = st.selectbox("Select Government Hospital", available_hospitals, key="call_hosp")
+        
         with st.form("call_form"):
-            selected_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())))
-            available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
-            selected_taluka = st.selectbox("Select Taluka", available_talukas)
-            available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
-            selected_hospital = st.selectbox("Select Government Hospital", available_hospitals)
-            
-            call_lang = st.selectbox("Select Language", ["Kannada (ಕನ್ನಡ)", "Hindi (हिन्दी)", "English"])
+            call_lang = st.selectbox("Select Language", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
             voice_transcript = st.text_area("Voice Call Transcript:", placeholder="ಉದಾಹರಣೆಗೆ: ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
 
             submitted_call = st.form_submit_button("Submit Voice Grievance")
@@ -332,89 +334,15 @@ if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
 
     with tab_sms:
         st.subheader("SMS / Feature Phone Gateway")
+        sms_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
+        sms_taluka = st.selectbox("Select Taluka", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
+        sms_hosp = st.selectbox("Select Hospital", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
+        
         with st.form("sms_form"):
-            sms_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
-            sms_taluka = st.selectbox("Select Taluka", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
-            sms_hosp = st.selectbox("Select Hospital", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
             sms_body = st.text_area("SMS Text Message", placeholder="MEDICINE SHORTAGE IN EMERGENCY WARD")
-            
             submitted_sms = st.form_submit_button("Send SMS Grievance")
+            
             if submitted_sms and sms_body.strip():
                 df = load_data()
-                cid = f"HOSP-SMS-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
-                new_row = pd.DataFrame([{
-                    "Complaint ID": cid,
-                    "Intake Channel": "SMS / Feature Phone",
-                    "District": sms_district,
-                    "Taluka": sms_taluka,
-                    "Hospital": sms_hosp,
-                    "Department / Category": "Medicine Availability",
-                    "Language": "Regional Code",
-                    "Voice / Text Transcript": sms_body,
-                    "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet",
-                    "Patient Rating": "Not Rated",
-                    "Escalation Status": "Normal",
-                    "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }])
-                df = pd.concat([df, new_row], ignore_index=True)
-                df.to_csv(DATA_FILE, index=False)
-                st.success(f"SMS registered successfully! Ticket ID: **{cid}**")
 
-    with tab_kiosk:
-        st.subheader("Assisted Hospital Helpdesk Kiosk")
-        with st.form("kiosk_form"):
-            k_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="k_dist")
-            k_taluka = st.selectbox("Select Taluka", sorted(list(HOSPITAL_DATABASE[k_district].keys())), key="k_tal")
-            k_hosp = st.selectbox("Select Hospital", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
-            kiosk_desc = st.text_area("Issue Description", placeholder="Describe cleanliness or staff shortage...")
-            
-            submitted_kiosk = st.form_submit_button("Log Assisted Grievance")
-            if submitted_kiosk and kiosk_desc.strip():
-                df = load_data()
-                cid = f"HOSP-KIOSK-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
-                new_row = pd.DataFrame([{
-                    "Complaint ID": cid,
-                    "Intake Channel": "Hospital Helpdesk Kiosk",
-                    "District": k_district,
-                    "Taluka": k_taluka,
-                    "Hospital": k_hosp,
-                    "Department / Category": "General Facilities",
-                    "Language": "Assisted Entry",
-                    "Voice / Text Transcript": kiosk_desc,
-                    "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet",
-                    "Patient Rating": "Not Rated",
-                    "Escalation Status": "Normal",
-                    "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }])
-                df = pd.concat([df, new_row], ignore_index=True)
-                df.to_csv(DATA_FILE, index=False)
-                st.success(f"Helpdesk grievance logged! Ticket ID: **{cid}**")
 
-    with tab_track:
-        st.subheader("Track Status, Check Inaction & Escalate")
-        search_id = st.text_input("Enter Unique Complaint ID (e.g., HOSP-CALL-...):")
-        
-        if st.button("Search Ticket"):
-            df = load_data()
-            if not df.empty:
-                result = df[df["Complaint ID"] == search_id.strip()]
-                if not result.empty:
-                    st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Escalation Status"]])
-                    
-                    status = result["Status"].values[0]
-                    escalation = result["Escalation Status"].values[0]
-                    
-                    if status == "Pending":
-                        st.warning("⚠️ Notice: Hospital staff have not taken any action yet on this complaint.")
-                        
-                        if escalation == "Normal":
-                            if st.button("🚨 Escalate to District Medical Officer (No Action Taken)"):
-                                df.loc[df["Complaint ID"] == search_id.strip(), "Escalation Status"] = "ESCALATED TO DMO ⚠️"
-                                df.to_csv(DATA_FILE, index=False)
-                                st.error("Complaint has been escalated to district health authorities due to lack of action!")
-                                st.rerun()
-                        else:
-                            st.error("🚨 This complaint is currently Escalated to higher authorities due to delayed staff response.")
-       
