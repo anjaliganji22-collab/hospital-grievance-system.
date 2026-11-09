@@ -396,4 +396,9 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         if st.button("Search Ticket / ದೂರು ಹುಡುಕಿ"):
             df = load_data()
             if not df.empty:
-                result = df[df
+                result = df[df["Complaint ID"] == search_id.strip()]
+                if not result.empty:
+                    st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Escalation Status"]])
+                    
+                    status = result["Status"].values[0]
+                    escalation = result["Escalation Statu
