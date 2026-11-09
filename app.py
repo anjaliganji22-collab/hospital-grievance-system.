@@ -5,7 +5,7 @@ import datetime
 import random
 
 st.set_page_config(
-    page_title="Accessible Voice & Kiosk Public Grievance System",
+    page_title="Accessible Grievance System / ಧ್ವನಿ ಆಧಾರಿತ ದೂರು ವ್ಯವಸ್ಥೆ",
     page_icon="🏥",
     layout="wide"
 )
@@ -14,7 +14,7 @@ DATA_FILE = "complaints.csv"
 
 # Comprehensive Database of All Districts, Talukas & Government Hospitals in Karnataka
 HOSPITAL_DATABASE = {
-    "Bagalkot": {
+    "Bagalkot / ಬಾಗಲಕೋಟೆ": {
         "Bagalkot": ["District Hospital Bagalkot", "General Hospital Bagalkot"],
         "Badami": ["Taluk Hospital Badami"],
         "Hungund": ["Taluk Hospital Hungund"],
@@ -23,14 +23,14 @@ HOSPITAL_DATABASE = {
         "Bilagi": ["Taluk Hospital Bilagi"],
         "Rabkavi Banhatti": ["Community Health Centre Rabkavi"]
     },
-    "Ballari (Bellary)": {
+    "Ballari / ಬಳ್ಳಾರಿ": {
         "Ballari": ["VIMS Hospital Ballari", "District Hospital Ballari"],
-        "Hospet (Vijayanagara)": ["Taluk Hospital Hospet"],
+        "Hospet": ["Taluk Hospital Hospet"],
         "Sandur": ["Taluk Hospital Sandur"],
         "Siruguppa": ["Taluk Hospital Siruguppa"],
         "Kudligi": ["Taluk Hospital Kudligi"]
     },
-    "Belagavi (Belgaum)": {
+    "Belagavi / ಬೆಳಗಾವಿ": {
         "Belagavi": ["District Hospital Belagavi", "BIMS Hospital Belagavi"],
         "Chikkodi": ["Government General Hospital Chikkodi"],
         "Bailhongal": ["Taluk Hospital Bailhongal"],
@@ -43,39 +43,33 @@ HOSPITAL_DATABASE = {
         "Hukkeri": ["Taluk Hospital Hukkeri"],
         "Nippani": ["Taluk Hospital Nippani"]
     },
-    "Bengaluru Rural": {
-        "Devanahalli": ["Taluk General Hospital Devanahalli"],
-        "Doddaballapura": ["Government Hospital Doddaballapura"],
-        "Nelamangala": ["Taluk Hospital Nelamangala"],
-        "Hoskote": ["General Hospital Hoskote"]
-    },
-    "Bengaluru Urban": {
+    "Bengaluru Urban / ಬೆಂಗಳೂರು ನಗರ": {
         "Bengaluru North": ["Bowring & Lady Curzon Hospital", "KC General Hospital Malleshwaram"],
         "Bengaluru South": ["Victoria Hospital Fort", "Vanivilas Women and Children Hospital"],
         "Bengaluru East": ["General Hospital Jayanagar", "C.V. Raman General Hospital"],
         "Anekal": ["Taluk Hospital Anekal"]
     },
-    "Bidar": {
+    "Bidar / ಬೀದರ್": {
         "Bidar": ["District Hospital Bidar", "BRIMS Teaching Hospital"],
         "Bhalki": ["Taluk Hospital Bhalki"],
         "Basavakalyan": ["Taluk Hospital Basavakalyan"],
         "Humnabad": ["Taluk Hospital Humnabad"],
         "Aurad": ["Taluk Hospital Aurad"]
     },
-    "Chamarajanagar": {
+    "Chamarajanagar / ಚಾಮರಾಜನಗರ": {
         "Chamarajanagar": ["District Hospital Chamarajanagar"],
         "Kollegal": ["Sub-Divisional Hospital Kollegal"],
         "Gundlupet": ["Taluk Hospital Gundlupet"],
         "Yelandur": ["Community Health Centre Yelandur"]
     },
-    "Chikkaballapura": {
+    "Chikkaballapura / ಚಿಕ್ಕಬಳ್ಳಾಪುರ": {
         "Chikkaballapura": ["District Hospital Chikkaballapura"],
         "Bagepalli": ["Taluk Hospital Bagepalli"],
         "Chintamani": ["Taluk Hospital Chintamani"],
         "Gauribidanur": ["Taluk Hospital Gauribidanur"],
         "Sidlaghatta": ["Taluk Hospital Sidlaghatta"]
     },
-    "Chikkamagaluru": {
+    "Chikkamagaluru / ಚಿಕ್ಕಮಗಳೂರು": {
         "Chikkamagaluru": ["District Hospital Chikkamagaluru"],
         "Kadur": ["Taluk Hospital Kadur"],
         "Koppa": ["Taluk Hospital Koppa"],
@@ -84,42 +78,42 @@ HOSPITAL_DATABASE = {
         "Sringeri": ["Taluk Hospital Sringeri"],
         "Tarikere": ["Taluk Hospital Tarikere"]
     },
-    "Chitradurga": {
+    "Chitradurga / ಚಿತ್ರದುರ್ಗ": {
         "Chitradurga": ["District Hospital Chitradurga"],
         "Challakere": ["Taluk Hospital Challakere"],
         "Hiriyur": ["Taluk Hospital Hiriyur"],
         "Hosadurga": ["Taluk Hospital Hosadurga"],
         "Molakalmuru": ["Taluk Hospital Molakalmuru"]
     },
-    "Dakshina Kannada": {
+    "Dakshina Kannada / ದಕ್ಷಿಣ ಕನ್ನಡ": {
         "Mangaluru": ["Government Lady Goschen Hospital", "Wenlock District Hospital Mangaluru"],
         "Bantwal": ["Taluk Hospital Bantwal"],
         "Puttur": ["Government Hospital Puttur"],
         "Belthangady": ["Taluk Hospital Belthangady"],
         "Sullia": ["Taluk Hospital Sullia"]
     },
-    "Davanagere": {
+    "Davanagere / ದಾವಣಗೆರೆ": {
         "Davanagere": ["Chigateri District Hospital", "McGann Teaching Hospital"],
         "Harihar": ["Taluk Hospital Harihar"],
         "Honnali": ["Taluk Hospital Honnali"],
         "Nyamati": ["Community Health Centre Nyamati"],
         "Jagalur": ["Taluk Hospital Jagalur"]
     },
-    "Dharwad": {
+    "Dharwad / ಧಾರವಾಡ": {
         "Dharwad": ["District Hospital Dharwad", "KIMS Hospital Dharwad"],
         "Hubballi": ["Karnataka Institute of Medical Sciences (KIMS)", "Civil Hospital Hubballi"],
         "Navalgund": ["Taluk Hospital Navalgund"],
         "Kundgol": ["Taluk Hospital Kundgol"],
         "Alnavar": ["Community Health Centre Alnavar"]
     },
-    "Gadag": {
+    "Gadag / ಗದಗ": {
         "Gadag": ["GIMS Teaching Hospital Gadag", "District Hospital Gadag"],
         "Ron": ["Taluk Hospital Ron"],
         "Shirhatti": ["Taluk Hospital Shirhatti"],
         "Mundargi": ["Taluk Hospital Mundargi"],
         "Nargund": ["Taluk Hospital Nargund"]
     },
-    "Hassan": {
+    "Hassan / ಹಾಸನ": {
         "Hassan": ["HIMS Teaching Hospital", "District Hospital Hassan"],
         "Arsikere": ["Taluk Hospital Arsikere"],
         "Channarayapatna": ["Taluk Hospital Channarayapatna"],
@@ -128,7 +122,7 @@ HOSPITAL_DATABASE = {
         "Belur": ["Taluk Hospital Belur"],
         "Alur": ["Community Health Centre Alur"]
     },
-    "Haveri": {
+    "Haveri / ಹಾವೇರಿ": {
         "Haveri": ["District Hospital Haveri"],
         "Ranebennur": ["Taluk Hospital Ranebennur"],
         "Byadgi": ["Taluk Hospital Byadgi"],
@@ -136,7 +130,7 @@ HOSPITAL_DATABASE = {
         "Shiggav": ["Taluk Hospital Shiggaon"],
         "Savanur": ["Taluk Hospital Savanur"]
     },
-    "Kalaburagi (Gulbarga)": {
+    "Kalaburagi (Gulbarga) / ಕಲಬುರಗಿ": {
         "Kalaburagi": ["District Government Hospital Kalaburagi", "Super Speciality Hospital Kalaburagi", "ESIC Medical College & Hospital"],
         "Aland": ["Community Health Centre Aland", "Taluk General Hospital Aland"],
         "Afzalpur": ["Taluk Hospital Afzalpur", "CHC Dudhani"],
@@ -145,25 +139,25 @@ HOSPITAL_DATABASE = {
         "Sedam": ["Taluk Hospital Sedam"],
         "Yadrami": ["Community Health Centre Yadrami"]
     },
-    "Kodagu": {
+    "Kodagu / ಕೊಡಗು": {
         "Madikeri": ["District Hospital Madikeri"],
         "Virajpet": ["Taluk General Hospital Virajpet"],
         "Somwarpet": ["Taluk Hospital Somwarpet"]
     },
-    "Kolar": {
+    "Kolar / ಕೋಲಾರ": {
         "Kolar": ["District Hospital Kolar", "RL Jalappa Hospital"],
         "Bangarapet": ["Taluk Hospital Bangarapet"],
         "Malur": ["Taluk Hospital Malur"],
         "Mulbagal": ["Taluk Hospital Mulbagal"],
         "Srinivaspur": ["Taluk Hospital Srinivaspur"]
     },
-    "Koppal": {
+    "Koppal / ಕೊಪ್ಪಳ": {
         "Koppal": ["District Hospital Koppal", "KIMS Koppal"],
         "Gangavathi": ["Taluk Hospital Gangavathi"],
         "Yelburga": ["Taluk Hospital Yelburga"],
         "Kushtagi": ["Taluk Hospital Kushtagi"]
     },
-    "Mandya": {
+    "Mandya / ಮಂಡ್ಯ": {
         "Mandya": ["Mandya Institute of Medical Sciences (MIMS)", "District Hospital Mandya"],
         "Maddur": ["Taluk Hospital Maddur"],
         "Malavalli": ["Taluk Hospital Malavalli"],
@@ -172,29 +166,29 @@ HOSPITAL_DATABASE = {
         "Nagamangala": ["Taluk Hospital Nagamangala"],
         "Krishnarajapet": ["Taluk Hospital KR Pet"]
     },
-    "Mysuru (Mysore)": {
+    "Mysuru / ಮೈಸೂರು": {
         "Mysuru": ["K.R. Hospital Mysuru", "Cheluvamba Hospital", "District Hospital Mysuru"],
         "Nanjangud": ["Taluk General Hospital Nanjangud"],
         "Hunsur": ["Taluk Hospital Hunsur"],
         "K.R. Nagar": ["Taluk Hospital KR Nagar"],
         "Periyapatna": ["Taluk Hospital Periyapatna"],
         "T. Narasipura": ["Taluk Hospital T. Narasipura"],
-        "Heggadadevankote (H.D. Kote)": ["Taluk Hospital HD Kote"]
+        "Heggadadevankote": ["Taluk Hospital HD Kote"]
     },
-    "Raichur": {
+    "Raichur / ರಾಯಚೂರು": {
         "Raichur": ["RIMS Teaching Hospital", "District Hospital Raichur"],
         "Manvi": ["Taluk Hospital Manvi"],
         "Sindhanur": ["Taluk Hospital Sindhanur"],
         "Devadurga": ["Taluk Hospital Devadurga"],
         "Maski": ["Community Health Centre Maski"]
     },
-    "Ramanagara": {
+    "Ramanagara / ರಾಮನಗರ": {
         "Ramanagara": ["District Hospital Ramanagara"],
         "Channapatna": ["Taluk Hospital Channapatna"],
         "Kanakapura": ["Taluk Hospital Kanakapura"],
         "Magadi": ["Taluk Hospital Magadi"]
     },
-    "Shivamogga (Shimoga)": {
+    "Shivamogga / ಶಿವಮೊಗ್ಗ": {
         "Shivamogga": ["McGann District Hospital", "SIMS Teaching Hospital"],
         "Bhadravathi": ["Taluk Hospital Bhadravathi"],
         "Sagara": ["Sub-Divisional Hospital Sagara"],
@@ -203,7 +197,7 @@ HOSPITAL_DATABASE = {
         "Tirthahalli": ["Taluk Hospital Tirthahalli"],
         "Hosanagara": ["Taluk Hospital Hosanagara"]
     },
-    "Tumakuru (Tumkur)": {
+    "Tumakuru / ತುಮಕೂರು": {
         "Tumakuru": ["District Hospital Tumakuru", "TSIIMS Hospital"],
         "Madhugiri": ["Sub-Divisional Hospital Madhugiri"],
         "Tiptur": ["Taluk Hospital Tiptur"],
@@ -211,15 +205,14 @@ HOSPITAL_DATABASE = {
         "Gubbi": ["Taluk Hospital Gubbi"],
         "Kunigal": ["Taluk Hospital Kunigal"],
         "Koratagere": ["Taluk Hospital Koratagere"],
-        "Pavagada": ["Taluk Hospital Pavagada"],
-        "Chorayakanahalli": ["CHC C.N. Halli"]
+        "Pavagada": ["Taluk Hospital Pavagada"]
     },
-    "Udupi": {
+    "Udupi / ಉಡುಪಿ": {
         "Udupi": ["District Hospital Udupi"],
         "Kundapura": ["Government Hospital Kundapura"],
         "Karkala": ["Taluk Hospital Karkala"]
     },
-    "Uttara Kannada (Karwar)": {
+    "Uttara Kannada / ಉತ್ತರ ಕನ್ನಡ": {
         "Karwar": ["District Hospital Karwar"],
         "Sirsi": ["Sub-Divisional Hospital Sirsi"],
         "Kumta": ["Taluk Hospital Kumta"],
@@ -228,14 +221,14 @@ HOSPITAL_DATABASE = {
         "Yellapur": ["Taluk Hospital Yellapur"],
         "Ankola": ["Taluk Hospital Ankola"]
     },
-    "Vijayapura (Bijapur)": {
+    "Vijayapura / ವಿಜಯಪುರ": {
         "Vijayapura": ["District Hospital Vijayapura", "BLDE Teaching Hospital"],
         "Basavana Bagevadi": ["Taluk Hospital Basavana Bagevadi"],
         "Indi": ["Taluk Hospital Indi"],
         "Muddebihal": ["Taluk Hospital Muddebihal"],
         "Sindagi": ["Taluk Hospital Sindagi"]
     },
-    "Yadgir": {
+    "Yadgir / ಯಾದಗಿರಿ": {
         "Yadgir": ["District Hospital Yadgir", "YIMS Hospital"],
         "Shahapur": ["Taluk Hospital Shahapur"],
         "Shorapur": ["Taluk Hospital Shorapur"],
@@ -262,60 +255,60 @@ def load_data():
         df_init.to_csv(DATA_FILE, index=False)
         return df_init
 
-st.sidebar.title("🏥 Solvathon 2026 Navigation")
+st.sidebar.title("🏥 Solvathon 2026 Navigation / ಆಯ್ಕೆಗಳು")
 portal_choice = st.sidebar.radio(
-    "Select Portal", 
+    "Select Portal / ವಿಭಾಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", 
     [
-        "🗣️ Citizen Intake & Patient Tracking", 
-        "🩺 Doctor & Hospital Staff Portal", 
-        "📊 Admin & Authority Dashboard"
+        "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ", 
+        "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್", 
+        "📊 Admin Dashboard / ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
     ]
 )
 
 # ---------------------------------------------------------
 # PORTAL 1: CITIZEN INTAKE & PATIENT TRACKING
 # ---------------------------------------------------------
-if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
-    st.title("🗣️ Accessible Public Grievance System")
-    st.write("For rural patients and citizens across Karnataka to lodge complaints and track doctor responses.")
+if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ":
+    st.title("🗣️ Accessible Grievance System / ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ವ್ಯವಸ್ಥೆ")
+    st.write("For rural patients and citizens across Karnataka / ಕರ್ನಾಟಕದ ಸಾರ್ವಜನಿಕರು ಮತ್ತು ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ")
 
     tab_call, tab_sms, tab_kiosk, tab_track = st.tabs([
-        "📞 Live Audio Call / IVR", 
-        "📱 SMS Gateway", 
-        "🏥 Hospital Helpdesk Kiosk", 
-        "🔍 Track Status & Escalate"
+        "📞 Voice Call (IVR) / ಧ್ವನಿ ಕರೆ ದೂರು", 
+        "📱 SMS Gateway / ಎಸ್‌ಎಂಎಸ್ ದೂರು", 
+        "🏥 Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ", 
+        "🔍 Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ"
     ])
 
     with tab_call:
-        st.subheader("Interactive Voice Response (IVR) & Call Portal")
+        st.subheader("Interactive Voice Call Portal / ಧ್ವನಿ ಕರೆ ಮೂಲಕ ದೂರು ನೀಡಿ")
         
-        # Dynamic cascading selectbox outside st.form so selections update instantly
-        selected_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
+        # Cascading selections outside st.form for instant UI updates
+        selected_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
         available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
-        selected_taluka = st.selectbox("Select Taluka", available_talukas, key="call_tal")
+        selected_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_talukas, key="call_tal")
         available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
-        selected_hospital = st.selectbox("Select Government Hospital", available_hospitals, key="call_hosp")
+        selected_hospital = st.selectbox("Select Government Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_hospitals, key="call_hosp")
         
         with st.form("call_form"):
-            call_lang = st.selectbox("Select Language", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
-            voice_transcript = st.text_area("Voice Call Transcript:", placeholder="ಉದಾಹರಣೆಗೆ: ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
+            call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
+            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (ಮಾತನಾಡಿ ಅಥವಾ ಟೈಪ್ ಮಾಡಿ):", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ / Doctors not available...")
 
-            submitted_call = st.form_submit_button("Submit Voice Grievance")
+            submitted_call = st.form_submit_button(" Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
             
             if submitted_call and voice_transcript.strip():
                 df = load_data()
                 cid = f"HOSP-CALL-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
                 
-                cat = "General Facilities"
+                cat = "General Facilities / ಮೂಲಭೂತ ಸೌಕರ್ಯ"
                 txt = voice_transcript.lower()
-                if "doctor" in txt or "ವೈದ್ಯ" in txt or "staff" in txt:
-                    cat = "Doctors & Staff Availability"
-                elif "medicine" in txt or "tablet" in txt or "ಔಷಧಿ" in txt:
-                    cat = "Medicine Availability"
+                if "doctor" in txt or "ವೈದ್ಯ" in txt or "staff" in txt or "ಡಾಕ್ಟರ್" in txt:
+                    cat = "Doctors & Staff / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ"
+                elif "medicine" in txt or "tablet" in txt or "ಔಷಧಿ" in txt or "ಮಾತ್ರೆ" in txt:
+                    cat = "Medicine Shortage / ಔಷಧಗಳ ಕೊರತೆ"
 
                 new_row = pd.DataFrame([{
                     "Complaint ID": cid,
-                    "Intake Channel": "Voice Call / IVR",
+                    "Intake Channel": "Voice Call (IVR) / ಧ್ವನಿ ಕರೆ",
                     "District": selected_district,
                     "Taluka": selected_taluka,
                     "Hospital": selected_hospital,
@@ -323,26 +316,84 @@ if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
                     "Language": call_lang,
                     "Voice / Text Transcript": voice_transcript,
                     "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet",
+                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
                     "Patient Rating": "Not Rated",
                     "Escalation Status": "Normal",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
-                st.success(f"Grievance successfully registered! Unique Ticket ID: **{cid}**")
+                st.success(f"Grievance successfully registered / ದೂರು ಯಶಸ್ವಿಯಾಗಿ ದಾಖಲಾಗಿದೆ! Ticket ID: **{cid}**")
 
     with tab_sms:
-        st.subheader("SMS / Feature Phone Gateway")
-        sms_district = st.selectbox("Select District", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
-        sms_taluka = st.selectbox("Select Taluka", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
-        sms_hosp = st.selectbox("Select Hospital", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
+        st.subheader("SMS Gateway / ಎಸ್‌ಎಂಎಸ್ ಮೂಲಕ ದೂರು")
+        sms_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
+        sms_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
+        sms_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
         
         with st.form("sms_form"):
-            sms_body = st.text_area("SMS Text Message", placeholder="MEDICINE SHORTAGE IN EMERGENCY WARD")
-            submitted_sms = st.form_submit_button("Send SMS Grievance")
+            sms_body = st.text_area("SMS Text Message / ಎಸ್‌ಎಂಎಸ್ ಸಂದೇಶ", placeholder="MEDICINE SHORTAGE IN WARD / ಔಷಧದ ಅಭಾವ...")
+            submitted_sms = st.form_submit_button("Send SMS Grievance / ಎಸ್‌ಎಂಎಸ್ ಕಳುಹಿಸಿ")
             
             if submitted_sms and sms_body.strip():
                 df = load_data()
+                cid = f"HOSP-SMS-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
+                new_row = pd.DataFrame([{
+                    "Complaint ID": cid,
+                    "Intake Channel": "SMS / ಎಸ್‌ಎಂಎಸ್",
+                    "District": sms_district,
+                    "Taluka": sms_taluka,
+                    "Hospital": sms_hosp,
+                    "Department / Category": "Medicine / ಔಷಧಗಳು",
+                    "Language": "Regional Code",
+                    "Voice / Text Transcript": sms_body,
+                    "Status": "Pending",
+                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
+                    "Patient Rating": "Not Rated",
+                    "Escalation Status": "Normal",
+                    "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }])
+                df = pd.concat([df, new_row], ignore_index=True)
+                df.to_csv(DATA_FILE, index=False)
+                st.success(f"SMS registered / ಎಸ್‌ಎಂಎಸ್ ದಾಖಲಾಗಿದೆ! Ticket ID: **{cid}**")
 
+    with tab_kiosk:
+        st.subheader("Hospital Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ")
+        k_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="k_dist")
+        k_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE[k_district].keys())), key="k_tal")
+        k_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
+        
+        with st.form("kiosk_form"):
+            kiosk_desc = st.text_area("Issue Description / ಸಮಸ್ಯೆಯ ವಿವರಣೆ", placeholder="Describe issue / ವಿವರಣೆ ನೀಡಿ...")
+            submitted_kiosk = st.form_submit_button("Log Grievance / ಸಹಾಯ ಕೇಂದ್ರದಲ್ಲಿ ನಮೂದಿಸಿ")
+            
+            if submitted_kiosk and kiosk_desc.strip():
+                df = load_data()
+                cid = f"HOSP-KIOSK-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
+                new_row = pd.DataFrame([{
+                    "Complaint ID": cid,
+                    "Intake Channel": "Helpdesk Kiosk / ಸಹಾಯ ಕೇಂದ್ರ",
+                    "District": k_district,
+                    "Taluka": k_taluka,
+                    "Hospital": k_hosp,
+                    "Department / Category": "General / ಮೂಲಭೂತ ಸೌಕರ್ಯ",
+                    "Language": "Assisted Entry",
+                    "Voice / Text Transcript": kiosk_desc,
+                    "Status": "Pending",
+                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
+                    "Patient Rating": "Not Rated",
+                    "Escalation Status": "Normal",
+                    "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }])
+                df = pd.concat([df, new_row], ignore_index=True)
+                df.to_csv(DATA_FILE, index=False)
+                st.success(f"Grievance logged / ದೂರು ನಮೂದಿಸಲಾಗಿದೆ! Ticket ID: **{cid}**")
 
+    with tab_track:
+        st.subheader("Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ ಮತ್ತು ಮೇಲ್ಮನವಿ")
+        search_id = st.text_input("Enter Complaint ID / ನಿಮ್ಮ ದೂರು ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ (e.g., HOSP-CALL-...):")
+        
+        if st.button("Search Ticket / ದೂರು ಹುಡುಕಿ"):
+            df = load_data()
+            if not df.empty:
+                result = df[df
