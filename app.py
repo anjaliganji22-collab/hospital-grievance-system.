@@ -282,7 +282,6 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
     with tab_call:
         st.subheader("Interactive Voice Call Portal / ಧ್ವನಿ ಕರೆ ಮೂಲಕ ದೂರು ನೀಡಿ")
         
-        # Cascading selections outside st.form for instant UI updates
         selected_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
         available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
         selected_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_talukas, key="call_tal")
@@ -291,9 +290,9 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         
         with st.form("call_form"):
             call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
-            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (ಮಾತನಾಡಿ ಅಥವಾ ಟೈಪ್ ಮಾಡಿ):", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ / Doctors not available...")
+            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
 
-            submitted_call = st.form_submit_button(" Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
+            submitted_call = st.form_submit_button("Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
             
             if submitted_call and voice_transcript.strip():
                 df = load_data()
@@ -332,7 +331,7 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         sms_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
         
         with st.form("sms_form"):
-            sms_body = st.text_area("SMS Text Message / ಎಸ್‌ಎಂಎಸ್ ಸಂದೇಶ", placeholder="MEDICINE SHORTAGE IN WARD / ಔಷಧದ ಅಭಾವ...")
+            sms_body = st.text_area("SMS Text Message / ಎಸ್‌ಎಂಎಸ್ ಸಂದೇಶ", placeholder="MEDICINE SHORTAGE IN WARD...")
             submitted_sms = st.form_submit_button("Send SMS Grievance / ಎಸ್‌ಎಂಎಸ್ ಕಳುಹಿಸಿ")
             
             if submitted_sms and sms_body.strip():
@@ -364,7 +363,7 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         k_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
         
         with st.form("kiosk_form"):
-            kiosk_desc = st.text_area("Issue Description / ಸಮಸ್ಯೆಯ ವಿವರಣೆ", placeholder="Describe issue / ವಿವರಣೆ ನೀಡಿ...")
+            kiosk_desc = st.text_area("Issue Description / ಸಮಸ್ಯೆಯ ವಿವರಣೆ", placeholder="Describe issue...")
             submitted_kiosk = st.form_submit_button("Log Grievance / ಸಹಾಯ ಕೇಂದ್ರದಲ್ಲಿ ನಮೂದಿಸಿ")
             
             if submitted_kiosk and kiosk_desc.strip():
@@ -391,7 +390,7 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
 
     with tab_track:
         st.subheader("Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ ಮತ್ತು ಮೇಲ್ಮನವಿ")
-        search_id = st.text_input("Enter Complaint ID / ನಿಮ್ಮ ದೂರು ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ (e.g., HOSP-CALL-...):")
+        search_id = st.text_input("Enter Complaint ID / ನಿಮ್ಮ ದೂರು ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ:")
         
         if st.button("Search Ticket / ದೂರು ಹುಡುಕಿ"):
             df = load_data()
@@ -401,4 +400,107 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                     st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Escalation Status"]])
                     
                     status = result["Status"].values[0]
-                    escalation = result["Escalation Statu
+                    escalation = result["Escalation Status"].values[0]
+                    
+                    if status == "Pending":
+                        st.warning("⚠️ Notice: Hospital staff have not taken any action yet / ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿ ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ.")
+                        
+                        if escalation == "Normal":
+                            if st.button("🚨 Escalate to District Medical Officer (DMO) / ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳಿಗೆ ಮೇಲ್ಮನವಿ ಸಲ್ಲಿಸಿ"):
+                                df.loc[df["Complaint ID"] == search_id.strip(), "Escalation Status"] = "ESCALATED TO DMO ⚠️"
+                                df.to_csv(DATA_FILE, index=False)
+                                st.error("Complaint escalated to DMO due to lack of staff action!")
+                                st.rerun()
+                        else:
+                            st.error("🚨 Complaint is Escalated to DMO / ಈ ದೂರು ಈಗಾಗಲೇ ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳ ಬಳಿ ಇದೆ.")
+                            
+                    elif status == "Resolved":
+                        st.success("✅ This complaint has been resolved by hospital staff.")
+                        rating = st.slider("Rate Hospital Action (1 to 5 Stars) / ಸೇವೆಯ ರೇಟಿಂಗ್ ನೀಡಿ", 1, 5, 5)
+                        if st.button("Submit Rating / ರೇಟಿಂಗ್ ಸಲ್ಲಿಸಿ"):
+                            df.loc[df["Complaint ID"] == search_id.strip(), "Patient Rating"] = f"⭐ {rating} Stars"
+                            df.to_csv(DATA_FILE, index=False)
+                            st.success("Thank you for your feedback!")
+                            st.rerun()
+                else:
+                    st.error("Complaint ID not found / ದೂರು ಸಂಖ್ಯೆ ಕಂಡುಬಂದಿಲ್ಲ.")
+            else:
+                st.info("No records available / ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ.")
+
+# ---------------------------------------------------------
+# PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL
+# ---------------------------------------------------------
+elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್":
+    st.title("🩺 Doctor & Hospital Staff Action Portal")
+    st.write("Review grievances, take action, and respond to patients.")
+    
+    df = load_data()
+    staff_district = st.selectbox("Filter by District / ಜಿಲ್ಲೆಯ ಪ್ರಕಾರ ಹುಡುಕಿ", ["All Districts / ಎಲ್ಲಾ ಜಿಲ್ಲೆಗಳು"] + sorted(list(HOSPITAL_DATABASE.keys())))
+    if staff_district != "All Districts / ಎಲ್ಲಾ ಜಿಲ್ಲೆಗಳು":
+        df_filtered = df[df["District"] == staff_district]
+    else:
+        df_filtered = df
+
+    st.subheader("Patient Grievances List / ರೋಗಿಗಳ ದೂರುಗಳ ಪಟ್ಟಿ")
+    if not df_filtered.empty:
+        st.dataframe(df_filtered[["Complaint ID", "Hospital", "Department / Category", "Voice / Text Transcript", "Status", "Escalation Status"]])
+        
+        active_ids = df_filtered["Complaint ID"].tolist()
+        if active_ids:
+            st.markdown("---")
+            st.subheader("📝 Take Action & Answer Complaint")
+            doc_selected_id = st.selectbox("Select Ticket ID / ದೂರು ಸಂಖ್ಯೆ ಆಯ್ಕೆ ಮಾಡಿ", active_ids)
+            
+            curr_status = df.loc[df["Complaint ID"] == doc_selected_id, "Status"].values[0]
+            if curr_status == "Pending":
+                st.error("⚠️ Status: No action taken yet by staff.")
+            
+            doctor_answer = st.text_area("Official Staff Response / ಸ್ವೀಕರಿಸಿದ ಕ್ರಮದ ವಿವರಣೆ:", placeholder="Describe action taken...")
+            
+            col_d1, col_d2 = st.columns(2)
+            if col_d1.button("Mark In Progress / ಪ್ರಗತಿಯಲ್ಲಿದೆ"):
+                df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "In Progress"
+                df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
+                df.to_csv(DATA_FILE, index=False)
+                st.success("Status updated to In Progress.")
+                st.rerun()
+                
+            if col_d2.button("Mark Resolved & Submit Answer / ಬಗೆಹರಿಸಲಾಗಿದೆ"):
+                if doctor_answer.strip():
+                    df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "Resolved"
+                    df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
+                    df.loc[df["Complaint ID"] == doc_selected_id, "Escalation Status"] = "Resolved & Closed"
+                    df.to_csv(DATA_FILE, index=False)
+                    st.success("Marked as Resolved!")
+                    st.rerun()
+                else:
+                    st.error("Please enter action remarks before resolving.")
+    else:
+        st.info("No complaints found.")
+
+# ---------------------------------------------------------
+# PORTAL 3: ADMIN & AUTHORITY DASHBOARD
+# ---------------------------------------------------------
+else:
+    st.title("📊 Health Authority Monitoring Dashboard")
+    df = load_data()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Grievances", len(df))
+    col2.metric("Pending / No Action", len(df[df["Status"] == "Pending"]))
+    col3.metric("Escalated to DMO", len(df[df["Escalation Status"] == "ESCALATED TO DMO ⚠️"]))
+    col4.metric("Resolved", len(df[df["Status"] == "Resolved"]))
+
+    st.markdown("---")
+    st.subheader("⚠️ Escalated Complaints (Inaction Alerts)")
+    escalated_df = df[df["Escalation Status"] == "ESCALATED TO DMO ⚠️"]
+    if not escalated_df.empty:
+        st.dataframe(escalated_df)
+    else:
+        st.info("No escalated complaints.")
+
+    st.markdown("---")
+    st.subheader("Master Registry")
+    if not df.empty:
+        st.dataframe(df)
+
