@@ -407,7 +407,7 @@ if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
                     escalation = result["Escalation Status"].values[0]
                     
                     if status == "Pending":
-                        st.warning("⚠️ **Notice:** Hospital staff have **not taken any action yet** on this complaint.")
+                        st.warning("⚠️ Notice: Hospital staff have not taken any action yet on this complaint.")
                         
                         if escalation == "Normal":
                             if st.button("🚨 Escalate to District Medical Officer (No Action Taken)"):
@@ -416,4 +416,5 @@ if portal_choice == "🗣️ Citizen Intake & Patient Tracking":
                                 st.error("Complaint has been escalated to district health authorities due to lack of action!")
                                 st.rerun()
                         else:
-                            st.error("🚨 This complaint is currently **Escalated** to higher authorities due to delayed staff respons
+                            st.error("🚨 This complaint is currently Escalated to higher authorities due to delayed staff response.")
+       
