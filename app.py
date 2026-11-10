@@ -4,11 +4,64 @@ import os
 import datetime
 import random
 
+# --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Accessible Grievance System / ಧ್ವನಿ ಆಧಾರಿತ ದೂರು ವ್ಯವಸ್ಥೆ",
+    page_title="Public Grievance System | ಸಾರ್ವಜನಿಕ ದೂರು ವ್ಯವಸ್ಥೆ",
     page_icon="🏥",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# --- CUSTOM IMPRESSIVE CSS STYLING ---
+st.markdown("""
+<style>
+    /* Main Background & Font Styling */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #f8fafc;
+    }
+    
+    /* Header Gradient Text */
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.2rem;
+    }
+    
+    .sub-title {
+        font-size: 1.05rem;
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Cards & Containers */
+    .css-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+    }
+
+    /* Metric Card Styling */
+    div[data-testid="stMetricValue"] {
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+    
+    /* Primary Action Buttons */
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 DATA_FILE = "complaints.csv"
 
@@ -255,7 +308,8 @@ def load_data():
         df_init.to_csv(DATA_FILE, index=False)
         return df_init
 
-st.sidebar.title("🏥 Solvathon 2026 Navigation / ಆಯ್ಕೆಗಳು")
+# --- SIDEBAR NAVIGATION ---
+st.sidebar.markdown("<h2 style='color: #38bdf8;'>🏥 Navigation / ಆಯ್ಕೆಗಳು</h2>", unsafe_allow_html=True)
 portal_choice = st.sidebar.radio(
     "Select Portal / ವಿಭಾಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", 
     [
@@ -264,35 +318,39 @@ portal_choice = st.sidebar.radio(
         "📊 Admin Dashboard / ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
     ]
 )
+st.sidebar.markdown("---")
+st.sidebar.caption("Solvathon 2026 Innovation Project | Health Grievance AI Assistant")
 
 # ---------------------------------------------------------
 # PORTAL 1: CITIZEN INTAKE & PATIENT TRACKING
 # ---------------------------------------------------------
 if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ":
-    st.title("🗣️ Accessible Grievance System / ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ವ್ಯವಸ್ಥೆ")
-    st.write("For rural patients and citizens across Karnataka / ಕರ್ನಾಟಕದ ಸಾರ್ವಜನಿಕರು ಮತ್ತು ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ")
+    st.markdown("<div class='main-title'>🗣️ Public Health Grievance System</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ಮತ್ತು ಸೇವಾ ಪರಿಶೀಲನಾ ಪೋರ್ಟಲ್</div>", unsafe_allow_html=True)
 
     tab_call, tab_sms, tab_kiosk, tab_track = st.tabs([
-        "📞 Voice Call (IVR) / ಧ್ವನಿ ಕರೆ ದೂರು", 
-        "📱 SMS Gateway / ಎಸ್‌ಎಂಎಸ್ ದೂರು", 
-        "🏥 Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ", 
-        "🔍 Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ"
+        "📞 Voice Call (IVR) / ಧ್ವನಿ ಕರೆ", 
+        "📱 SMS Gateway / ಎಸ್‌ಎಂಎಸ್", 
+        "🏥 Kiosk Helpdesk / ಸಹಾಯ ಕೇಂದ್ರ", 
+        "🔍 Track Status / ದೂರಿನ ಸ್ಥಿತಿ"
     ])
 
     with tab_call:
-        st.subheader("Interactive Voice Call Portal / ಧ್ವನಿ ಕರೆ ಮೂಲಕ ದೂರು ನೀಡಿ")
+        st.markdown("### 🎙️ Interactive Voice Response (IVR) / ಧ್ವನಿ ಕರೆ ಮೂಲಕ ದೂರು")
         
-        selected_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
-        available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
-        selected_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_talukas, key="call_tal")
-        available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
-        selected_hospital = st.selectbox("Select Government Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_hospitals, key="call_hosp")
+        col1, col2 = st.columns(2)
+        with col1:
+            selected_district = st.selectbox("Select District / ಜಿಲ್ಲೆ", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
+            available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
+            selected_taluka = st.selectbox("Select Taluka / ತಾಲೂಕು", available_talukas, key="call_tal")
+        with col2:
+            available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
+            selected_hospital = st.selectbox("Select Government Hospital / ಆಸ್ಪತ್ರೆ", available_hospitals, key="call_hosp")
+            call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
         
         with st.form("call_form"):
-            call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
-            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
-
-            submitted_call = st.form_submit_button("Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
+            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ / Doctors not available...")
+            submitted_call = st.form_submit_button("Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ", use_container_width=True)
             
             if submitted_call and voice_transcript.strip():
                 df = load_data()
@@ -300,14 +358,14 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                 
                 cat = "General Facilities / ಮೂಲಭೂತ ಸೌಕರ್ಯ"
                 txt = voice_transcript.lower()
-                if "doctor" in txt or "ವೈದ್ಯ" in txt or "staff" in txt or "ಡಾಕ್ಟರ್" in txt:
+                if any(w in txt for w in ["doctor", "ವೈದ್ಯ", "staff", "ಡಾಕ್ಟರ್"]):
                     cat = "Doctors & Staff / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ"
-                elif "medicine" in txt or "tablet" in txt or "ಔಷಧಿ" in txt or "ಮಾತ್ರೆ" in txt:
+                elif any(w in txt for w in ["medicine", "tablet", "ಔಷಧಿ", "ಮಾತ್ರೆ"]):
                     cat = "Medicine Shortage / ಔಷಧಗಳ ಕೊರತೆ"
 
                 new_row = pd.DataFrame([{
                     "Complaint ID": cid,
-                    "Intake Channel": "Voice Call (IVR) / ಧ್ವನಿ ಕರೆ",
+                    "Intake Channel": "Voice Call (IVR)",
                     "District": selected_district,
                     "Taluka": selected_taluka,
                     "Hospital": selected_hospital,
@@ -322,24 +380,27 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
-                st.success(f"Grievance successfully registered / ದೂರು ಯಶಸ್ವಿಯಾಗಿ ದಾಖಲಾಗಿದೆ! Ticket ID: **{cid}**")
+                st.success(f"🎉 Grievance registered successfully! Unique Ticket ID: **{cid}**")
 
     with tab_sms:
-        st.subheader("SMS Gateway / ಎಸ್‌ಎಂಎಸ್ ಮೂಲಕ ದೂರು")
-        sms_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
-        sms_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
-        sms_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
+        st.markdown("### 📱 SMS / Feature Phone Gateway")
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            sms_district = st.selectbox("Select District / ಜಿಲ್ಲೆ", sorted(list(HOSPITAL_DATABASE.keys())), key="sms_dist")
+            sms_taluka = st.selectbox("Select Taluka / ತಾಲೂಕು", sorted(list(HOSPITAL_DATABASE[sms_district].keys())), key="sms_tal")
+        with col_s2:
+            sms_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆ", HOSPITAL_DATABASE[sms_district][sms_taluka], key="sms_hosp")
         
         with st.form("sms_form"):
             sms_body = st.text_area("SMS Text Message / ಎಸ್‌ಎಂಎಸ್ ಸಂದೇಶ", placeholder="MEDICINE SHORTAGE IN WARD...")
-            submitted_sms = st.form_submit_button("Send SMS Grievance / ಎಸ್‌ಎಂಎಸ್ ಕಳುಹಿಸಿ")
+            submitted_sms = st.form_submit_button("Send SMS Grievance / ಎಸ್‌ಎಂಎಸ್ ಕಳುಹಿಸಿ", use_container_width=True)
             
             if submitted_sms and sms_body.strip():
                 df = load_data()
                 cid = f"HOSP-SMS-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
                 new_row = pd.DataFrame([{
                     "Complaint ID": cid,
-                    "Intake Channel": "SMS / ಎಸ್‌ಎಂಎಸ್",
+                    "Intake Channel": "SMS / Feature Phone",
                     "District": sms_district,
                     "Taluka": sms_taluka,
                     "Hospital": sms_hosp,
@@ -347,66 +408,69 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                     "Language": "Regional Code",
                     "Voice / Text Transcript": sms_body,
                     "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
+                    "Doctor Action / Official Response": "No action taken yet",
                     "Patient Rating": "Not Rated",
                     "Escalation Status": "Normal",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
-                st.success(f"SMS registered / ಎಸ್‌ಎಂಎಸ್ ದಾಖಲಾಗಿದೆ! Ticket ID: **{cid}**")
+                st.success(f"🎉 SMS registered! Ticket ID: **{cid}**")
 
     with tab_kiosk:
-        st.subheader("Hospital Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ")
-        k_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="k_dist")
-        k_taluka = st.selectbox("Select Taluka / ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE[k_district].keys())), key="k_tal")
-        k_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
+        st.markdown("### 🏥 Assisted Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ")
+        col_k1, col_k2 = st.columns(2)
+        with col_k1:
+            k_district = st.selectbox("Select District / ಜಿಲ್ಲೆ", sorted(list(HOSPITAL_DATABASE.keys())), key="k_dist")
+            k_taluka = st.selectbox("Select Taluka / ತಾಲೂಕು", sorted(list(HOSPITAL_DATABASE[k_district].keys())), key="k_tal")
+        with col_k2:
+            k_hosp = st.selectbox("Select Hospital / ಆಸ್ಪತ್ರೆ", HOSPITAL_DATABASE[k_district][k_taluka], key="k_hosp")
         
         with st.form("kiosk_form"):
             kiosk_desc = st.text_area("Issue Description / ಸಮಸ್ಯೆಯ ವಿವರಣೆ", placeholder="Describe issue...")
-            submitted_kiosk = st.form_submit_button("Log Grievance / ಸಹಾಯ ಕೇಂದ್ರದಲ್ಲಿ ನಮೂದಿಸಿ")
+            submitted_kiosk = st.form_submit_button("Log Grievance / ನಮೂದಿಸಿ", use_container_width=True)
             
             if submitted_kiosk and kiosk_desc.strip():
                 df = load_data()
                 cid = f"HOSP-KIOSK-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
                 new_row = pd.DataFrame([{
                     "Complaint ID": cid,
-                    "Intake Channel": "Helpdesk Kiosk / ಸಹಾಯ ಕೇಂದ್ರ",
+                    "Intake Channel": "Helpdesk Kiosk",
                     "District": k_district,
                     "Taluka": k_taluka,
                     "Hospital": k_hosp,
-                    "Department / Category": "General / ಮೂಲಭೂತ ಸೌಕರ್ಯ",
+                 "Department / Category": "General Facilities",
                     "Language": "Assisted Entry",
                     "Voice / Text Transcript": kiosk_desc,
                     "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
+                    "Doctor Action / Official Response": "No action taken yet",
                     "Patient Rating": "Not Rated",
                     "Escalation Status": "Normal",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }])
                 df = pd.concat([df, new_row], ignore_index=True)
                 df.to_csv(DATA_FILE, index=False)
-                st.success(f"Grievance logged / ದೂರು ನಮೂದಿಸಲಾಗಿದೆ! Ticket ID: **{cid}**")
+                st.success(f"🎉 Grievance logged! Ticket ID: **{cid}**")
 
     with tab_track:
-        st.subheader("Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ ಮತ್ತು ಮೇಲ್ಮನವಿ")
-        search_id = st.text_input("Enter Complaint ID / ನಿಮ್ಮ ದೂರು ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ:")
+        st.markdown("### 🔍 Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ")
+        search_id = st.text_input("Enter Complaint Ticket ID / ನಿಮ್ಮ ದೂರು ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ:")
         
-        if st.button("Search Ticket / ದೂರು ಹುಡುಕಿ"):
+        if st.button("Search Ticket / ದೂರು ಹುಡುಕಿ", use_container_width=True):
             df = load_data()
             if not df.empty:
                 result = df[df["Complaint ID"] == search_id.strip()]
                 if not result.empty:
-                    st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Escalation Status"]])
+                    st.dataframe(result[["Complaint ID", "Hospital", "Voice / Text Transcript", "Status", "Doctor Action / Official Response", "Escalation Status"]], use_container_width=True)
                     
                     status = result["Status"].values[0]
                     escalation = result["Escalation Status"].values[0]
                     
                     if status == "Pending":
-                        st.warning("⚠️ Notice: Hospital staff have not taken any action yet / ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿ ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ.")
+                        st.warning("⚠️ **Notice:** Hospital staff have **not taken any action yet** / ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿ ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ.")
                         
                         if escalation == "Normal":
-                            if st.button("🚨 Escalate to District Medical Officer (DMO) / ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳಿಗೆ ಮೇಲ್ಮನವಿ ಸಲ್ಲಿಸಿ"):
+                            if st.button("🚨 Escalate to District Medical Officer (DMO) / ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳಿಗೆ ಮೇಲ್ಮನವಿ", use_container_width=True):
                                 df.loc[df["Complaint ID"] == search_id.strip(), "Escalation Status"] = "ESCALATED TO DMO ⚠️"
                                 df.to_csv(DATA_FILE, index=False)
                                 st.error("Complaint escalated to DMO due to lack of staff action!")
@@ -415,9 +479,9 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                             st.error("🚨 Complaint is Escalated to DMO / ಈ ದೂರು ಈಗಾಗಲೇ ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳ ಬಳಿ ಇದೆ.")
                             
                     elif status == "Resolved":
-                        st.success("✅ This complaint has been resolved by hospital staff.")
-                        rating = st.slider("Rate Hospital Action (1 to 5 Stars) / ಸೇವೆಯ ರೇಟಿಂಗ್ ನೀಡಿ", 1, 5, 5)
-                        if st.button("Submit Rating / ರೇಟಿಂಗ್ ಸಲ್ಲಿಸಿ"):
+                        st.success("✅ This complaint has been resolved by hospital staff / ಈ ದೂರನ್ನು ಬಗೆಹರಿಸಲಾಗಿದೆ.")
+                        rating = st.slider("Rate Hospital Action (1 to 5 Stars) / ರೇಟಿಂಗ್ ನೀಡಿ", 1, 5, 5)
+                        if st.button("Submit Rating / ರೇಟಿಂಗ್ ಸಲ್ಲಿಸಿ", use_container_width=True):
                             df.loc[df["Complaint ID"] == search_id.strip(), "Patient Rating"] = f"⭐ {rating} Stars"
                             df.to_csv(DATA_FILE, index=False)
                             st.success("Thank you for your feedback!")
@@ -425,14 +489,14 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                 else:
                     st.error("Complaint ID not found / ದೂರು ಸಂಖ್ಯೆ ಕಂಡುಬಂದಿಲ್ಲ.")
             else:
-                st.info("No records available / ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ.")
+                st.info("No records available.")
 
 # ---------------------------------------------------------
 # PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL
 # ---------------------------------------------------------
 elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್":
-    st.title("🩺 Doctor & Hospital Staff Action Portal")
-    st.write("Review grievances, take action, and respond to patients.")
+    st.markdown("<div class='main-title'>🩺 Doctor & Hospital Staff Action Portal</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಕಾರ್ಯಾಚರಣೆ ಪೋರ್ಟಲ್</div>", unsafe_allow_html=True)
     
     df = load_data()
     staff_district = st.selectbox("Filter by District / ಜಿಲ್ಲೆಯ ಪ್ರಕಾರ ಹುಡುಕಿ", ["All Districts / ಎಲ್ಲಾ ಜಿಲ್ಲೆಗಳು"] + sorted(list(HOSPITAL_DATABASE.keys())))
@@ -441,31 +505,31 @@ elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ
     else:
         df_filtered = df
 
-    st.subheader("Patient Grievances List / ರೋಗಿಗಳ ದೂರುಗಳ ಪಟ್ಟಿ")
+    st.markdown("### 📋 Assigned Grievances List / ದೂರುಗಳ ಪಟ್ಟಿ")
     if not df_filtered.empty:
-        st.dataframe(df_filtered[["Complaint ID", "Hospital", "Department / Category", "Voice / Text Transcript", "Status", "Escalation Status"]])
+        st.dataframe(df_filtered[["Complaint ID", "Hospital", "Department / Category", "Voice / Text Transcript", "Status", "Escalation Status"]], use_container_width=True)
         
         active_ids = df_filtered["Complaint ID"].tolist()
         if active_ids:
             st.markdown("---")
-            st.subheader("📝 Take Action & Answer Complaint")
+            st.markdown("### 📝 Resolve & Answer Patient Complaint")
             doc_selected_id = st.selectbox("Select Ticket ID / ದೂರು ಸಂಖ್ಯೆ ಆಯ್ಕೆ ಮಾಡಿ", active_ids)
             
             curr_status = df.loc[df["Complaint ID"] == doc_selected_id, "Status"].values[0]
             if curr_status == "Pending":
-                st.error("⚠️ Status: No action taken yet by staff.")
+                st.warning("⚠️ **Status:** No action taken yet by hospital staff.")
             
-            doctor_answer = st.text_area("Official Staff Response / ಸ್ವೀಕರಿಸಿದ ಕ್ರಮದ ವಿವರಣೆ:", placeholder="Describe action taken...")
+            doctor_answer = st.text_area("Official Response / ಕೈಗೊಂಡ ಕ್ರಮದ ವಿವರಣೆ:", placeholder="Describe action taken...")
             
             col_d1, col_d2 = st.columns(2)
-            if col_d1.button("Mark In Progress / ಪ್ರಗತಿಯಲ್ಲಿದೆ"):
+            if col_d1.button("Mark In Progress / ಪ್ರಗತಿಯಲ್ಲಿದೆ", use_container_width=True):
                 df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "In Progress"
                 df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
                 df.to_csv(DATA_FILE, index=False)
                 st.success("Status updated to In Progress.")
                 st.rerun()
                 
-            if col_d2.button("Mark Resolved & Submit Answer / ಬಗೆಹರಿಸಲಾಗಿದೆ"):
+            if col_d2.button("Mark Resolved & Submit Answer / ಪರಿಹರಿಸಲಾಗಿದೆ", use_container_width=True):
                 if doctor_answer.strip():
                     df.loc[df["Complaint ID"] == doc_selected_id, "Status"] = "Resolved"
                     df.loc[df["Complaint ID"] == doc_selected_id, "Doctor Action / Official Response"] = doctor_answer
@@ -474,7 +538,7 @@ elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ
                     st.success("Marked as Resolved!")
                     st.rerun()
                 else:
-                    st.error("Please enter action remarks before resolving.")
+                    st.error("Please enter official remarks before resolving.")
     else:
         st.info("No complaints found.")
 
@@ -482,25 +546,30 @@ elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ
 # PORTAL 3: ADMIN & AUTHORITY DASHBOARD
 # ---------------------------------------------------------
 else:
-    st.title("📊 Health Authority Monitoring Dashboard")
+    st.markdown("<div class='main-title'>📊 Health Authority Monitoring & Escalation Dashboard</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳ ಮತ್ತು ರಾಜ್ಯ ಮಟ್ಟದ ಮೇಲ್ವಿಚಾರಣಾ ಪೋರ್ಟಲ್</div>", unsafe_allow_html=True)
+    
     df = load_data()
     
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Grievances", len(df))
-    col2.metric("Pending / No Action", len(df[df["Status"] == "Pending"]))
-    col3.metric("Escalated to DMO", len(df[df["Escalation Status"] == "ESCALATED TO DMO ⚠️"]))
-    col4.metric("Resolved", len(df[df["Status"] == "Resolved"]))
+    with col1:
+        st.metric("Total Grievances", len(df))
+    with col2:
+        st.metric("Pending / No Action", len(df[df["Status"] == "Pending"]))
+    with col3:
+        st.metric("Escalated to DMO", len(df[df["Escalation Status"] == "ESCALATED TO DMO ⚠️"]))
+    with col4:
+        st.metric("Resolved", len(df[df["Status"] == "Resolved"]))
 
     st.markdown("---")
-    st.subheader("⚠️ Escalated Complaints (Inaction Alerts)")
+    st.markdown("### ⚠️ Escalated Complaints (Inaction Alerts)")
     escalated_df = df[df["Escalation Status"] == "ESCALATED TO DMO ⚠️"]
     if not escalated_df.empty:
-        st.dataframe(escalated_df)
+        st.dataframe(escalated_df, use_container_width=True)
     else:
-        st.info("No escalated complaints.")
+        st.info("No escalated complaints due to staff inaction.")
 
     st.markdown("---")
-    st.subheader("Master Registry")
+    st.markdown("### 📋 Master Registry Across All Districts")
     if not df.empty:
-        st.dataframe(df)
-
+        st.dataframe(df, use_container_width=True)
