@@ -12,80 +12,84 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ADVANCED AESTHETIC CSS STYLING ---
+# --- JUDGE-READY ADVANCED CSS STYLING ---
 st.markdown("""
 <style>
-    /* Global Theme & Font */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
     .stApp {
-        background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+        background: radial-gradient(circle at top left, #f0fdf4 0%, #f8fafc 50%, #f1f5f9 100%);
         font-family: 'Plus Jakarta Sans', sans-serif;
-        color: #1e293b;
+        color: #0f172a;
     }
     
-    /* Sidebar Styling */
+    /* Sidebar Polish */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-        color: white;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     section[data-testid="stSidebar"] .stRadio label {
-        color: #e2e8f0 !important;
+        color: #f1f5f9 !important;
         font-weight: 500;
+        font-size: 0.95rem;
     }
     
-    /* Header Gradient Banner */
+    /* Hero Header Banner */
     .hero-banner {
-        background: linear-gradient(90deg, #0284c7 0%, #0d9488 100%);
-        padding: 2.5rem;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #065f46 0%, #0d9488 50%, #0284c7 100%);
+        padding: 2.8rem;
+        border-radius: 20px;
         color: white;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.3);
+        box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.2), 0 8px 10px -6px rgba(13, 148, 136, 0.2);
     }
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2.4rem;
         font-weight: 800;
+        letter-spacing: -0.025em;
         margin-bottom: 0.5rem;
     }
     .hero-subtitle {
         font-size: 1.15rem;
-        opacity: 0.9;
+        opacity: 0.95;
         font-weight: 400;
+        line-height: 1.5;
     }
 
-    /* Card Containers */
-    .css-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+    /* Glassmorphism Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
         border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
         margin-bottom: 20px;
     }
 
-    /* Buttons & Inputs Styling */
+    /* Buttons */
     .stButton>button {
-        background: linear-gradient(90deg, #0284c7 0%, #0d9488 100%);
+        background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
         color: white;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         font-weight: 600;
-        padding: 0.6rem 1.2rem;
-        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        padding: 0.65rem 1.4rem;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(2, 132, 199, 0.3);
+        box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+        background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
     }
     
     /* Metrics */
     div[data-testid="stMetric"] {
         background: white;
         padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         border: 1px solid #e2e8f0;
     }
 </style>
@@ -337,26 +341,31 @@ def load_data():
         return df_init
 
 # --- SIDEBAR NAVIGATION ---
-st.sidebar.markdown("<h2 style='color: #38bdf8;'>🏥 Navigation / ಆಯ್ಕೆಗಳು</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color: #2dd4bf; font-weight: 700;'>🏥 Navigation / ಆಯ್ಕೆಗಳು</h2>", unsafe_allow_html=True)
 portal_choice = st.sidebar.radio(
     "Select Portal / ವಿಭಾಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", 
     [
-        "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ", 
-        "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್", 
-        "📊 Admin Dashboard / ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+        "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ", 
+        "🩺 Doctor & Staff Portal / ವೈದ್ಯರ ಪೋರ್ಟಲ್", 
+        "📊 Admin Dashboard / ಮೇಲ್ವಿಚಾರಣಾ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
     ]
 )
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Solvathon 2026 Project**: Accessible Rural Healthcare Grievance & Staff Accountability Platform.")
+st.sidebar.markdown("""
+    <div style='color: #94a3b8; font-size: 0.85rem;'>
+        <b>Solvathon 2026 Project</b><br>
+        Bridging rural healthcare gaps through voice AI and direct staff accountability.
+    </div>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # PORTAL 1: CITIZEN INTAKE & PATIENT TRACKING
 # ---------------------------------------------------------
-if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ":
+if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ":
     st.markdown("""
         <div class="hero-banner">
             <div class="hero-title">🏥 Swasthya Sahay: Public Health Grievance System</div>
-            <div class="hero-subtitle">ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಧ್ವನಿ ಆಧಾರಿತ ಸಹಾಯವಾಣಿ ಪೋರ್ಟಲ್</div>
+            <div class="hero-subtitle">Empowering rural citizens across Karnataka with zero-smartphone voice & SMS grievance redressal.<br>ಕನ್ನಡ ಮತ್ತು ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ವ್ಯವಸ್ಥೆ</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -438,11 +447,11 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                     "District": sms_district,
                     "Taluka": sms_taluka,
                     "Hospital": sms_hosp,
-                    "Department / Category": "Medicine / ಔಷಧಗಳು",
-                    "Language": "Regional Code",
-                    "Voice / Text Transcript": sms_body,
+                    "Department / Category": cat,
+                    "Language": call_lang,
+                    "Voice / Text Transcript": voice_transcript,
                     "Status": "Pending",
-                    "Doctor Action / Official Response": "No action taken yet",
+                    "Doctor Action / Official Response": "No action taken yet / ಇನ್ನೂ ಯಾವುದೇ ಕ್ರಮ ಕೈಗೊಂಡಿಲ್ಲ",
                     "Patient Rating": "Not Rated",
                     "Escalation Status": "Normal",
                     "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -565,9 +574,9 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
 # ---------------------------------------------------------
 # PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL
 # ---------------------------------------------------------
-elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್":
+elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರ ಪೋರ್ಟಲ್":
     st.markdown("""
-        <div class="hero-banner" style="background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);">
+        <div class="hero-banner" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
             <div class="hero-title">🩺 Doctor & Hospital Staff Portal</div>
             <div class="hero-subtitle">ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಕಾರ್ಯಾಚರಣೆ ಪೋರ್ಟಲ್</div>
         </div>
@@ -623,7 +632,7 @@ elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ
 # ---------------------------------------------------------
 else:
     st.markdown("""
-        <div class="hero-banner" style="background: linear-gradient(90deg, #475569 0%, #1e293b 100%);">
+        <div class="hero-banner" style="background: linear-gradient(135deg, #334155 0%, #0f172a 100%);">
             <div class="hero-title">📊 Health Authority Monitoring Dashboard</div>
             <div class="hero-subtitle">ಜಿಲ್ಲಾ ಆರೋಗ್ಯಾಧಿಕಾರಿಗಳ ಮತ್ತು ಮೇಲ್ವಿಚಾರಣಾ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</div>
         </div>
