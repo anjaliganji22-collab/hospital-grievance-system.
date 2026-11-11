@@ -150,7 +150,7 @@ HOSPITAL_DATABASE = {
         "Madikeri": ["District Hospital Madikeri"],
         "Virajpet": ["Taluk General Hospital Virajpet"],
         "Somwarpet": ["Taluk Hospital Somwarpet"]
-        },
+    },
     "Kolar / ಕೋಲಾರ": {
         "Kolar": ["District Hospital Kolar", "RL Jalappa Hospital"],
         "Bangarapet": ["Taluk Hospital Bangarapet"],
@@ -296,26 +296,57 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         selected_hospital = st.selectbox("Select Government Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_hospitals, key="call_hosp")
         
         st.markdown("---")
-        st.markdown("### 🎙️ Speak your complaint / ನಿಮ್ಮ ಮಾತಿನಲ್ಲಿ ದೂರು ದಾಖಲಿಸಿ (Microphone)")
+        st.markdown("### 🎙️ Speak your complaint / ನಿಮ್ಮ ಮಾತಿನಲ್ಲಿ ದೂರು ದಾಖಲಿಸಿ")
         
+        call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"], key="lang_select")
+
+        lang_code_map = {
+            "Kannada (ಕನ್ನಡ)": "kn-IN",
+            "Hindi (ಹಿन्दी)": "hi-IN",
+            "English": "en-US"
+        }
+        selected_lang_code = lang_code_map[call_lang]
+
         spoken_text = ""
+        
         if MIC_AVAILABLE:
-            st.write("Click the microphone button to record your voice grievance in Kannada, Hindi, or English:")
-            audio = mic_recorder(start_prompt="🔴 Start Recording / ಮಾತನಾಡಿ", stop_prompt="⏹️ Stop Recording / ನಿಲ್ಲಿಸಿ", key='voice_recorder')
+            st.write("Click the microphone button to speak your grievance:")
+            audio = mic_recorder(
+                start_prompt="🔴 Start Recording / ಮಾತನಾಡಿ", 
+                stop_prompt="⏹️ Stop Recording / ನಿಲ್ಲಿಸಿ", 
+                key='voice_recorder'
+            )
+            
             if audio:
                 st.audio(audio['bytes'])
-                # Placeholder simulation for speech-to-text integration fallback
-                spoken_text = "Voice grievance recorded successfully via microphone."
-                st.success("Audio captured successfully! You can review or edit below.")
+                try:
+                    import speech_recognition as sr
+                    import io
+                    from pydub import AudioSegment
+
+                    audio_segment = AudioSegment.from_file(io.BytesIO(audio['bytes']))
+                    wav_io = io.BytesIO()
+                    audio_segment.export(wav_io, format="wav")
+                    wav_io.seek(0)
+
+                    recognizer = sr.Recognizer()
+                    with sr.AudioFile(wav_io) as source:
+                        audio_data = recognizer.record(source)
+                        spoken_text = recognizer.recognize_google(audio_data, language=selected_lang_code)
+                        st.success(f"✅ Voice Transcribed: \"{spoken_text}\"")
+
+                except Exception as e:
+                    st.warning("Could not auto-transcribe audio. You can manually type or edit below.")
         else:
-            st.info("To enable direct microphone button widgets, install the package using: `pip install streamlit-mic-recorder`")
+            st.info("To enable microphone recording, install: `pip install streamlit-mic-recorder SpeechRecognition pydub`")
 
         with st.form("call_form"):
-            call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
-            
-            # Pre-fill with spoken text if available
-            default_transcript = spoken_text if spoken_text else ""
-            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (Type or Speak):", value=default_transcript, placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
+            voice_transcript = st.text_area(
+                "Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", 
+                value=spoken_text, 
+                placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...",
+                key="transcript_box"
+            )
 
             submitted_call = st.form_submit_button("Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
             
@@ -528,5 +559,3 @@ else:
     st.subheader("Master Registry")
     if not df.empty:
         st.dataframe(df)
-  
-
