@@ -4,6 +4,13 @@ import os
 import datetime
 import random
 
+# Try importing the mic recorder component
+try:
+    from streamlit_mic_recorder import mic_recorder
+    MIC_AVAILABLE = True
+except ImportError:
+    MIC_AVAILABLE = False
+
 st.set_page_config(
     page_title="Accessible Grievance System / ಧ್ವನಿ ಆಧಾರಿತ ದೂರು ವ್ಯವಸ್ಥೆ",
     page_icon="🏥",
@@ -143,7 +150,7 @@ HOSPITAL_DATABASE = {
         "Madikeri": ["District Hospital Madikeri"],
         "Virajpet": ["Taluk General Hospital Virajpet"],
         "Somwarpet": ["Taluk Hospital Somwarpet"]
-    },
+        },
     "Kolar / ಕೋಲಾರ": {
         "Kolar": ["District Hospital Kolar", "RL Jalappa Hospital"],
         "Bangarapet": ["Taluk Hospital Bangarapet"],
@@ -273,14 +280,14 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
     st.write("For rural patients and citizens across Karnataka / ಕರ್ನಾಟಕದ ಸಾರ್ವಜನಿಕರು ಮತ್ತು ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ")
 
     tab_call, tab_sms, tab_kiosk, tab_track = st.tabs([
-        "📞 Voice Call (IVR) / ಧ್ವನಿ ಕರೆ ದೂರು", 
+        "📞 Voice Call & Mic / ಧ್ವನಿ ಕರೆ ಮತ್ತು ಮೈಕ್", 
         "📱 SMS Gateway / ಎಸ್‌ಎಂಎಸ್ ದೂರು", 
         "🏥 Helpdesk Kiosk / ಆಸ್ಪತ್ರೆ ಸಹಾಯ ಕೇಂದ್ರ", 
         "🔍 Track Status & Escalate / ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ"
     ])
 
     with tab_call:
-        st.subheader("Interactive Voice Call Portal / ಧ್ವನಿ ಕರೆ ಮೂಲಕ ದೂರು ನೀಡಿ")
+        st.subheader("Interactive Voice Call Portal / ಧ್ವನಿ ಕರೆ ಅಥವಾ ನೇರ ಮೈಕ್ ಮೂಲಕ ದೂರು ನೀಡಿ")
         
         selected_district = st.selectbox("Select District / ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", sorted(list(HOSPITAL_DATABASE.keys())), key="call_dist")
         available_talukas = sorted(list(HOSPITAL_DATABASE[selected_district].keys()))
@@ -288,9 +295,27 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         available_hospitals = HOSPITAL_DATABASE[selected_district][selected_taluka]
         selected_hospital = st.selectbox("Select Government Hospital / ಆಸ್ಪತ್ರೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ", available_hospitals, key="call_hosp")
         
+        st.markdown("---")
+        st.markdown("### 🎙️ Speak your complaint / ನಿಮ್ಮ ಮಾತಿನಲ್ಲಿ ದೂರು ದಾಖಲಿಸಿ (Microphone)")
+        
+        spoken_text = ""
+        if MIC_AVAILABLE:
+            st.write("Click the microphone button to record your voice grievance in Kannada, Hindi, or English:")
+            audio = mic_recorder(start_prompt="🔴 Start Recording / ಮಾತನಾಡಿ", stop_prompt="⏹️ Stop Recording / ನಿಲ್ಲಿಸಿ", key='voice_recorder')
+            if audio:
+                st.audio(audio['bytes'])
+                # Placeholder simulation for speech-to-text integration fallback
+                spoken_text = "Voice grievance recorded successfully via microphone."
+                st.success("Audio captured successfully! You can review or edit below.")
+        else:
+            st.info("To enable direct microphone button widgets, install the package using: `pip install streamlit-mic-recorder`")
+
         with st.form("call_form"):
             call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"])
-            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
+            
+            # Pre-fill with spoken text if available
+            default_transcript = spoken_text if spoken_text else ""
+            voice_transcript = st.text_area("Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (Type or Speak):", value=default_transcript, placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...")
 
             submitted_call = st.form_submit_button("Submit Voice Grievance / ದೂರು ಸಲ್ಲಿಸಿ")
             
@@ -307,7 +332,7 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
 
                 new_row = pd.DataFrame([{
                     "Complaint ID": cid,
-                    "Intake Channel": "Voice Call (IVR) / ಧ್ವನಿ ಕರೆ",
+                    "Intake Channel": "Voice Call / Direct Mic",
                     "District": selected_district,
                     "Taluka": selected_taluka,
                     "Hospital": selected_hospital,
@@ -503,3 +528,5 @@ else:
     st.subheader("Master Registry")
     if not df.empty:
         st.dataframe(df)
+  
+
