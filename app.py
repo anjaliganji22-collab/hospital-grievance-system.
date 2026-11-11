@@ -3,10 +3,13 @@ import pandas as pd
 import os
 import datetime
 import random
+import io
 
-# Try importing the mic recorder component
+# Try importing mic recorder and speech recognition components
 try:
     from streamlit_mic_recorder import mic_recorder
+    import speech_recognition as sr
+    from pydub import AudioSegment
     MIC_AVAILABLE = True
 except ImportError:
     MIC_AVAILABLE = False
@@ -268,7 +271,7 @@ portal_choice = st.sidebar.radio(
     [
         "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ", 
         "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್", 
-        "📊 Admin Dashboard / ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+        "📊 Admin Dashboard/ ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
     ]
 )
 
@@ -299,7 +302,7 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         st.markdown("### 🎙️ Speak your complaint / ನಿಮ್ಮ ಮಾತಿನಲ್ಲಿ ದೂರು ದಾಖಲಿಸಿ")
         
         call_lang = st.selectbox("Language Spoken / ಭಾಷೆ", ["Kannada (ಕನ್ನಡ)", "Hindi (ಹಿन्दी)", "English"], key="lang_select")
-
+        
         lang_code_map = {
             "Kannada (ಕನ್ನಡ)": "kn-IN",
             "Hindi (ಹಿन्दी)": "hi-IN",
@@ -307,10 +310,10 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         }
         selected_lang_code = lang_code_map[call_lang]
 
-        spoken_text = ""
+        transcribed_text = ""
         
         if MIC_AVAILABLE:
-            st.write("Click the microphone button to speak your grievance:")
+            st.write("Click the microphone button to record and auto-transcribe your voice grievance:")
             audio = mic_recorder(
                 start_prompt="🔴 Start Recording / ಮಾತನಾಡಿ", 
                 stop_prompt="⏹️ Stop Recording / ನಿಲ್ಲಿಸಿ", 
@@ -320,10 +323,6 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
             if audio:
                 st.audio(audio['bytes'])
                 try:
-                    import speech_recognition as sr
-                    import io
-                    from pydub import AudioSegment
-
                     audio_segment = AudioSegment.from_file(io.BytesIO(audio['bytes']))
                     wav_io = io.BytesIO()
                     audio_segment.export(wav_io, format="wav")
@@ -332,18 +331,15 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                     recognizer = sr.Recognizer()
                     with sr.AudioFile(wav_io) as source:
                         audio_data = recognizer.record(source)
-                        spoken_text = recognizer.recognize_google(audio_data, language=selected_lang_code)
-                        st.success(f"✅ Voice Transcribed: \"{spoken_text}\"")
-
+                        transcribed_text = recognizer.recognize_google(audio_data, language=selected_lang_code)
+                        st.success(f"✅ Auto-Transcribed Text: \"{transcribed_text}\"")
                 except Exception as e:
-                    st.warning("Could not auto-transcribe audio. You can manually type or edit below.")
-        else:
-            st.info("To enable microphone recording, install: `pip install streamlit-mic-recorder SpeechRecognition pydub`")
+                    st.info("Could not auto-transcribe online. You can type or edit your complaint below.")
 
         with st.form("call_form"):
             voice_transcript = st.text_area(
-                "Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ:", 
-                value=spoken_text, 
+                "Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (Auto-transcribed or Type):", 
+                value=transcribed_text, 
                 placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...",
                 key="transcript_box"
             )
