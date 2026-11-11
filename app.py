@@ -5,7 +5,6 @@ import datetime
 import random
 import io
 
-# Try importing mic recorder and speech recognition components
 try:
     from streamlit_mic_recorder import mic_recorder
     import speech_recognition as sr
@@ -22,7 +21,6 @@ st.set_page_config(
 
 DATA_FILE = "complaints.csv"
 
-# Comprehensive Database of All Districts, Talukas & Government Hospitals in Karnataka
 HOSPITAL_DATABASE = {
     "Bagalkot / ಬಾಗಲಕೋಟೆ": {
         "Bagalkot": ["District Hospital Bagalkot", "General Hospital Bagalkot"],
@@ -271,13 +269,10 @@ portal_choice = st.sidebar.radio(
     [
         "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ", 
         "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್", 
-        "📊 Admin Dashboard/ ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+        "📊 Admin Dashboard / ಮೇಲಾಧಿಕಾರಿಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
     ]
 )
 
-# ---------------------------------------------------------
-# PORTAL 1: CITIZEN INTAKE & PATIENT TRACKING
-# ---------------------------------------------------------
 if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್ಲಿಕೆ ಮತ್ತು ಪರಿಶೀಲನೆ":
     st.title("🗣️ Accessible Grievance System / ಸಾರ್ವಜನಿಕ ಆಸ್ಪತ್ರೆ ದೂರು ವ್ಯವಸ್ಥೆ")
     st.write("For rural patients and citizens across Karnataka / ಕರ್ನಾಟಕದ ಸಾರ್ವಜನಿಕರು ಮತ್ತು ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ")
@@ -310,10 +305,12 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
         }
         selected_lang_code = lang_code_map[call_lang]
 
-        transcribed_text = ""
-        
+        # Initialize session state for transcribed text if not present
+        if "transcribed_text" not in st.session_state:
+            st.session_state["transcribed_text"] = ""
+
         if MIC_AVAILABLE:
-            st.write("Click the microphone button to record and auto-transcribe your voice grievance:")
+            st.write("Click the microphone button below to speak your complaint:")
             audio = mic_recorder(
                 start_prompt="🔴 Start Recording / ಮಾತನಾಡಿ", 
                 stop_prompt="⏹️ Stop Recording / ನಿಲ್ಲಿಸಿ", 
@@ -331,15 +328,15 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
                     recognizer = sr.Recognizer()
                     with sr.AudioFile(wav_io) as source:
                         audio_data = recognizer.record(source)
-                        transcribed_text = recognizer.recognize_google(audio_data, language=selected_lang_code)
-                        st.success(f"✅ Auto-Transcribed Text: \"{transcribed_text}\"")
-                except Exception as e:
+                        st.session_state["transcribed_text"] = recognizer.recognize_google(audio_data, language=selected_lang_code)
+                        st.success(f"✅ Auto-Transcribed Text: \"{st.session_state['transcribed_text']}\"")
+                except Exception:
                     st.info("Could not auto-transcribe online. You can type or edit your complaint below.")
 
         with st.form("call_form"):
             voice_transcript = st.text_area(
                 "Voice Grievance Message / ಧ್ವನಿ ಸಂದೇಶ (Auto-transcribed or Type):", 
-                value=transcribed_text, 
+                value=st.session_state["transcribed_text"], 
                 placeholder="ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ವೈದ್ಯರು ಲಭ್ಯವಿಲ್ಲ...",
                 key="transcript_box"
             )
@@ -479,9 +476,6 @@ if portal_choice == "🗣️ Citizen Intake & Tracking / ದೂರು ಸಲ್�
             else:
                 st.info("No records available / ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ.")
 
-# ---------------------------------------------------------
-# PORTAL 2: DOCTOR & HOSPITAL STAFF PORTAL
-# ---------------------------------------------------------
 elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ್ತು ಸಿಬ್ಬಂದಿ ಪೋರ್ಟಲ್":
     st.title("🩺 Doctor & Hospital Staff Action Portal")
     st.write("Review grievances, take action, and respond to patients.")
@@ -530,9 +524,6 @@ elif portal_choice == "🩺 Doctor & Staff Portal / ವೈದ್ಯರು ಮತ
     else:
         st.info("No complaints found.")
 
-# ---------------------------------------------------------
-# PORTAL 3: ADMIN & AUTHORITY DASHBOARD
-# ---------------------------------------------------------
 else:
     st.title("📊 Health Authority Monitoring Dashboard")
     df = load_data()
